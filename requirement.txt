@@ -1,4 +1,0 @@
-pysqlite3
-Pillow
-tkscrolledframe
-favicon
