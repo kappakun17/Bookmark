@@ -1,0 +1,138 @@
+import json
+import sqlite3
+from .model import Category, Folder, Bookmark
+
+class Database:
+    DATABASE_SCHEMA = '''
+        BEGIN TRANSACTION;
+        CREATE TABLE IF NOT EXISTS "bookmark" (
+            "id"	INTEGER NOT NULL UNIQUE,
+            "name"	TEXT,
+            "url"	TEXT NOT NULL,
+            "memo"	TEXT,
+            "folder_id"	INTEGER NOT NULL,
+            PRIMARY KEY("id" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "category" (
+            "id"	INTEGER NOT NULL UNIQUE,
+            "name"	TEXT NOT NULL UNIQUE,
+            PRIMARY KEY("id" AUTOINCREMENT)
+        );
+        CREATE TABLE IF NOT EXISTS "folder" (
+            "id"	INTEGER NOT NULL UNIQUE,
+            "name"	TEXT NOT NULL UNIQUE,
+            "category_id"	INTEGER NOT NULL,
+            PRIMARY KEY("id" AUTOINCREMENT)
+        );
+        COMMIT;
+    '''
+
+    DELETE_DATABASE = '''
+        BEGIN TRANSACTION;
+        DROP TABLE IF EXISTS "bookmark";
+        DROP TABLE IF EXISTS "category";
+        DROP TABLE IF EXISTS "folder";
+        COMMIT;
+    '''
+
+    def __init__(self) -> None:
+        self.db = "sqlite3.db"
+        self.con = sqlite3.connect(self.db)
+        self.con.row_factory = sqlite3.Row
+        self.cur = self.con.cursor()
+
+    def close(self):
+        self.cur.close()
+        self.con.close()
+
+    def consistOfDB(self):
+        self.cur.executescript(self.DATABASE_SCHEMA)
+
+    def rebuildDB(self):
+        # 一度削除
+        self.cur.executescript(self.DELETE_DATABASE)
+
+        self.consistOfDB()
+
+    def all_select_data(self):
+        res = self.cur.execute("SELECT id, name FROM category")
+        categories = [Category(row['id'], row['name']) for row in res]
+
+        res = self.cur.execute("SELECT id, name, category_id FROM folder")
+        folders = [Folder(row['id'], row['name'], row['category_id']) for row in res]
+
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark")
+        bookmarks = [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
+
+        selected_data = {
+            'category': [category.dict() for category in categories],
+            'folder': [folder.dict() for folder in folders],
+            'bookmark': [bookmark.dict() for bookmark in bookmarks],
+        }
+        return json.dumps(selected_data, indent = 4)
+
+
+    def select_category_id(self, category_id):
+        res = self.cur.execute("SELECT id, name FROM category WHERE id = ?", (category_id,))
+        row = res.fetchone()
+        if row is None:
+            return None
+        return Category(row['id'], row['name'])
+
+    def select_relate_category_folder(self, category_id):
+        res = self.cur.execute("SELECT id, name, category_id FROM folder WHERE category_id = ?", (category_id,))
+        return [Folder(row['id'], row['name'], row['category_id']) for row in res]
+
+    def insert_category(self, category_name):
+        self.cur.execute("INSERT INTO category(name) VALUES (?)", (category_name,))
+        self.con.commit()
+
+    def update_categoryName(self, category_id, category_name):
+        self.cur.execute("UPDATE category SET name = ? WHERE id = ?", (category_name, category_id))
+        self.con.commit()
+
+    def delete_category(self, category_id):
+        self.cur.execute("DELETE FROM category WHERE id = ?", (category_id,))
+        self.con.commit()
+
+    def select_folder_id(self, folder_id):
+        res = self.cur.execute("SELECT id, name, category_id FROM folder WHERE id = ?", (folder_id,))
+        row = res.fetchone()
+        if row is None:
+            return None
+        return Folder(row['id'], row['name'], row['category_id'])
+
+    def select_relate_folder_bookmark(self, folder_id):
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark WHERE folder_id = ?", (folder_id,))
+        return [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
+
+    def insert_folder(self, folder_name, category_id):
+        self.cur.execute("INSERT INTO folder(name, category_id) VALUES (?,?)", (folder_name, category_id))
+        self.con.commit()
+
+    def update_folderName(self, folder_id, folder_name):
+        self.cur.execute("UPDATE folder SET name = ? WHERE id = ?", (folder_name, folder_id))
+        self.con.commit()
+
+    def delete_folder(self, folder_id):
+        self.cur.execute("DELETE FROM folder WHERE id = ?", (folder_id,))
+        self.con.commit()
+
+    def select_bookmark_id(self, bookmark_id):
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark WHERE id = ?", (bookmark_id,))
+        row = res.fetchone()
+        if row is None:
+            return None
+        return Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'])
+
+    def insert_bookmark(self, bookmark_name, bookmark_url, bookmark_memo, folder_id):
+        self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id) VALUES (?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id))
+        self.con.commit()
+
+    def update_bookmark(self, bookmark_id, bookmark_name, bookmark_url, bookmark_memo, folder_id):
+        self.cur.execute("UPDATE bookmark SET name = ?, url = ?, memo = ?, folder_id = ? WHERE id = ?", (bookmark_name, bookmark_url, bookmark_memo, folder_id, bookmark_id))
+        self.con.commit()
+
+    def delete_folder(self, bookmark_id):
+        self.cur.execute("DELETE FROM bookmark WHERE id = ?", (bookmark_id,))
+        self.con.commit()
