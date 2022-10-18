@@ -2,3 +2,5 @@ pysqlite3
 Pillow
 tkscrolledframe
 favicon
+pyperclip
+tkwebview2
