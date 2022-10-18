@@ -1,38 +1,34 @@
 test_data = [
+
+
             {
-                'category':'Training',
-                'isVisible':False,
-                'folders':[
+                "id":"1",
+                "name":"Training",
+                "folders":[
                     {
-                        'folder':'Training',
-                    },
-                    {
-                        'folder':'Excel',
+                        "id":"1",
+                        "name":"programing",
                     }
-                ],
+                ]
             },
             {
-                'category':'Training',
-                'isVisible':False,
-                'folders':[
+                "id":"2",
+                "name":"Event",
+                "folders":[
                     {
-                        'folder':'Training',
-                    },
-                    {
-                        'folder':'Excel',
+                        "id":"1",
+                        "name":"リモートフェス2022",
                     }
-                ],
+                ]
             },
             {
-                'category':'Training',
-                'isVisible':False,
-                'folders':[
+                "id":"3",
+                "name":"Excel",
+                "folders":[
                     {
-                        'folder':'Training',
-                    },
-                    {
-                        'folder':'Excel',
+                        "id":"1",
+                        "name":"Excel操作マニュアル",
                     }
-                ],
-            }
+                ]
+            },
         ]

@@ -1,6 +1,7 @@
 # library
+from logging import root
 from sqlite3 import Cursor
-from threading import Thread
+# from threading import Thread
 from tkinter import BooleanVar, Frame, PhotoImage,Tk,Button,Entry,Label, Canvas
 import tkinter as tk
 from tkinter import ttk
@@ -13,12 +14,32 @@ from PIL import Image, ImageTk
 # from widget.ScrolledFrame import ScrolledFrame
 from tkscrolledframe import ScrolledFrame
 
+
 # module
 from testDataBase import test_data
+
+from frontend.src.widget.frame_left.FrameLeft import my_FrameLeft
+from frontend.src.widget.frame_center.FrameCenter import my_FrameCenter
+from frontend.src.widget.frame_right.FrameRight import my_FrameRight
+
+from frontend.src.widget.frame_left.ScrolledFrameForLeft import ScrolledFrameForLeft
+from frontend.src.widget.frame_center.ScrolledFrameForCenter import ScrolledFrameForCenter
+from frontend.src.widget.Logo import my_Logo
+from frontend.src.widget.BookmarkTitleBar import my_BookmarkTitleBar
+
 from frontend.src.widget.CategoryAndFoldersFrame import my_CategoryAndFoldersFrame
-from frontend.src.plugin.geometory.geometory import getGeometory
+from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.BookmarkFrame import my_BookmarkFrame
+from frontend.src.widget.WebviewFrame import my_WebviewFrame
+from frontend.src.widget.NoWebview import my_NoWebview
+from frontend.src.widget.Webview import my_Webview
 # from widget.TitleLabel import display_title_label
+
+from System.Threading import Thread,ApartmentState,ThreadStart
+
+import gc
+
+user32=ctypes.windll.user32
 
 # 高画質に変換するため
 # デフォルトでは拡大設定になり、ぼけてしまうそう。
@@ -27,21 +48,46 @@ try:
 except:
     pass
 
-import os
-
-ScrolledFrame._DEFAULT_SCROLLBARS = 'vertical'
-
-path = os.getcwd()
-print(path)
 
 # # アプリケーションFrameの設定
 # # the setting for the application Frame
 class Application(tk.Frame):
 
+    # 初期配置
     def __init__(self, master=None):
-       
         super().__init__(master)
-       
+        
+        self.startup();
+        
+        self.create_widgets()
+        
+        
+        
+        
+        # create category & folders
+        for _ in self.database:
+            my_CategoryAndFoldersFrame(self.sf_1.inner_frame)
+            
+        self.bookmarkFrame = my_BookmarkFrame(self.sf_2.inner_frame)
+        
+        self.webviewFrame = my_WebviewFrame(self.frame3)
+        self.webview = my_NoWebview(self.webviewFrame)
+        self.webview.goToEdgeBtn.bind('<Button-1>', self.openWebview)
+        
+        # self.master.protocol("WM_DELETE_WINDOW", self.quite)
+    
+            
+    def startup(self):
+        # test db
+        self.database = test_data
+        
+        # state
+        self.webview = None;
+        self.current_url_var = tk.StringVar()
+        self.current_url_var.set("https://www.bing.com")
+        self.data_categoryAndFolders = [self.database];
+        self.data_bookmarks = []
+        
         # consist of application    
         self.master.geometry("2200x1200")
         self.master.title("ITL Bookmark")
@@ -50,146 +96,84 @@ class Application(tk.Frame):
             )
         self.pack()
         
-        # image instance
-        self.LogoImage = tkinter.PhotoImage(file="frontend/src/img/logo/itl_bookmark.png")
-        self.bookmarkTitleBarImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_bar.png")
-        self.bookmarkTitleBtnImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_btn.png")
-        
-        # style
-        self.style = ttk.Style()
-        self.style.theme_use('vista')
-        # self.style.configure("Vertical.TScrollbar", gripcount=0,
-        #         background="red", darkcolor="DarkGreen", lightcolor="LightGreen",
-        #         troughcolor="gray", bordercolor="blue", arrowcolor="white")
-        
-        # left frame / category & folders
-        self.frame1 = Frame(self.master)
-        self.frame1.configure(bg='#fffdf8')
-        self.frame1.pack(anchor='nw', fill='y',side='left')
-        
-        # center frame / bookmarks
-        self.frame2 = Frame(self.master)
-        self.frame2.configure(bg='#fffdf8')
-        self.frame2.pack(anchor='nw', fill='y', side='left', padx=(20, 0))
-
-        # logo
-        self.create_logo()
-        
-        # bookmark title bar
-        self.create_bookmarkTitlebar()
-        
+        # setting
         # over ride: no display horizontal scroll bar
         ScrolledFrame._DEFAULT_SCROLLBARS = "vertical"
 
+        # image instance
+        self.bookmarkTitleBarImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_bar.png")
+        self.bookmarkTitleBtnImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_btn.png")
+        
+        # style 設定
+        self.style = ttk.Style()
+        self.style.theme_use('vista')
+    
+    def create_widgets(self):
+        # left frame + scrolledFrame / category & folders 配置
+        # center frame + scrolledFrame / bookmarks 配置
+        # right frame / webview 配置
+        self.frame1 = my_FrameLeft(self.master);
+        self.frame2 = my_FrameCenter(self.master);
+        self.frame3 = my_FrameRight(self.master)
+        
+        # logo 配置
+        # bookmark title bar 配置
+        self.logo =my_Logo(self.frame1)
+        self.bookmarkTitleBar = my_BookmarkTitleBar(self.frame2);
+        
         # scrolled frame
         #1. for category and folders
-        self.sf1 = ScrolledFrame(self.frame1, use_ttk=True)
-        self.sf1._canvas.configure(bg='#fffdf8')
-        self.sf1.config(
-                        width=500, 
-                        cursor='hand2', 
-                        height=self.master.winfo_screenheight(), 
-                        bg='#fffdf8', 
-                        bd=0,
-                        )
-        self.sf1.pack()
-        
-        self.sf1.bind_arrow_keys(self.frame1)
-        self.sf1.bind_scroll_wheel(self.frame1)
-        self.sf1_inner_frame = self.sf1.display_widget(Frame,fit_width=False,bg='#fffdf8')
-        
         #2. for bookmarks
-        self.sf2 = ScrolledFrame(self.frame2, use_ttk=True)
-        self.sf2._canvas.configure(bg='#fffdf8')
-        self.sf2.config(
-            width=820, 
-            cursor='hand2', 
-            height=self.master.winfo_screenheight(), 
-            bg='#fffdf8', 
-            bd=0,
-        )
-        self.sf2.pack(anchor='center')
-        self.sf2.bind_arrow_keys(self.frame2)
-        self.sf2.bind_scroll_wheel(self.frame2)
-        self.sf2_inner_frame = self.sf2.display_widget(Frame,fit_width=False,bg='#fffdf8')
+        self.sf_1 = ScrolledFrameForLeft(self.frame1)
+        self.sf_2 = ScrolledFrameForCenter(self.frame2)
+    
+    
+    def openWebview(self, event):
+        self.webview.destroy()
+        self.webview = my_Webview(self.webviewFrame, self.current_url_var.get())
         
-        
+    def openBookmarkUrlToWebview(self, event):
+        # self.bookmarkFrame.bookmarks.
+        pass
+    
+    # def quite(self):
+    #     self.master.destroy()
 
-        # db
-        self.database = test_data
-        
-        # create category & folders
-        for category in self.database:
-            my_CategoryAndFoldersFrame(self.sf1_inner_frame)
-            
-        my_BookmarkFrame(self.sf2_inner_frame)
-                
-            
-    # Logo表示
-    def create_logo(self):
-        l = Label(
-            self.frame1,
-            image= self.LogoImage,
-            borderwidth=0,
-            highlightthickness=0,
-            relief='flat',
-            bg='#fffdf8'
-        )
-        l.pack(pady=(20,20), padx=(20,0))
-        
-    def create_bookmarkTitlebar(self):
-        l = tk.Canvas(
-            self.frame2,
-            width=761,
-            height=63,
-            bg="#fffdf8",
-            highlightthickness=0,
-            relief='ridge',
-        )
-        l.create_image(0,0, image=self.bookmarkTitleBarImage,anchor='nw')
-        l.create_text(40,8, text="test", fill='#ffffff', anchor="nw",font=("HGS創英角ｺﾞｼｯｸUB", "19", "bold"))
-        btn = tk.Button(
-            self.frame2,
-            image=self.bookmarkTitleBtnImage,
-            command="",
-            cursor="hand2",
-            bg='#E893B1',
-            borderwidth=0,
-            highlightthickness=0,
-            relief='flat',
-            activebackground='#E893B1'
-        ).place(x=710, y=29)
-        
-        l.pack(pady=(20,10), padx=(10,20), anchor='nw')
-        
-            
-
-        
-        
+    
 def main():
+    global root
+    
     root = Tk();
     
-    
-    
-    # アプリを開いたときの初期画面サイズ 
+    # initial top screen size
     window_width = 2200
     window_height = 1200
-    # root.update_idletasks()
+    
     root.title()
     root.geometry(getGeometory(root, window_width, window_height))
 
     app = Application(master=root);
 
+    # ここで、アプリが動き続ける / アプリを終了するまで
     app.mainloop();
-
-# def go():
-#     try:
-#         main()
-#     except Exception as err:
-#         print(err)      
+    
+    # force - quite for thread
+    # メモリを解放してくれる（thread）
+    gc.collect()
+    
+def go():
+    
+    try:
+        main()
+    except Exception as err:
+        print(err)   
+        
         
 if __name__ == "__main__":
-    main()
-
+    # t = Thread(ThreadStart(go))
+    # t.ApartmentState = ApartmentState.STA
+    # t.Start()
+    # t.Join()
+    go
 
 
