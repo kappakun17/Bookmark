@@ -1,7 +1,7 @@
 from tkinter import *
 import tkinter as tk
 
-from frontend.src.plugin.geometory.geometory import getGeometory
+from frontend.src.utilities.geometory.geometory import getGeometory
 
 class ModalDialogSampleApp(tk.Frame):
 
