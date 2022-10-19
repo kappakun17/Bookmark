@@ -45,12 +45,13 @@ class Category_Folders:
         }
 
 class Bookmark:
-    def __init__(self, id, name, url, memo, folder_id):
+    def __init__(self, id, name, url, memo, folder_id, icon):
         self.id = id
         self.name = name
         self.url = url
         self.memo = memo
-        self.folder_id = folder_id
+        self.folder_id = folder_id,
+        self.icon = icon
 
 
     def __str__(self):
@@ -63,4 +64,5 @@ class Bookmark:
             'url': self.url,
             'memo': self.memo,
             'folder_id': self.folder_id,
+            'icon': self.icon
         }

@@ -8,6 +8,8 @@ from tkinter import ttk
 from tkinter import BooleanVar, Frame, PhotoImage,Tk,Button,Entry,Label, Canvas
 from tkscrolledframe import ScrolledFrame
 
+from concurrent.futures.thread import ThreadPoolExecutor
+
 import json
 import gc
 import ctypes
@@ -147,14 +149,11 @@ class Application(tk.Frame):
         self.sf_2 = ScrolledFrameForCenter(self.frame2)
         logger.debug('Created the 2 scrolled frame.')
         
-        self.render_categoryAndFolders()
-        logger.debug('Rendered the category and folders screen.')
-        
-        self.render_bookmarks()
-        logger.debug('Created the bookmarks screen.')
-        
-        self.render_Webview()
-        logger.debug('Rendered the webview screen.')
+        # 並列処理
+        with ThreadPoolExecutor(max_workers=20) as executor:
+            executor.submit(self.render_categoryAndFolders())
+            executor.submit(self.render_bookmarks())
+            executor.submit(self.render_Webview())
         
         logger.debug('Successed to create the widgets.')
         
@@ -197,6 +196,17 @@ class Application(tk.Frame):
         for bookmark in self.json_bookmarks:
             bm = my_Bookmark(self.sf_2.inner_frame, bookmark=bookmark)
             bm.view_btn.configure(command=partial(self.re_render_Webview, url=bookmark['url']))
+            
+            bm.browser_btn.bind("<Enter>", partial(bm.display_description,desc=bm.desc_browser, x=505, y=5))
+            bm.browser_btn.bind("<Leave>", partial(bm.no_display_description, desc=bm.desc_browser))
+            
+            bm.copy_link_btn.bind("<Enter>", partial(bm.display_description, desc=bm.desc_copyLink, x=570, y=5))
+            bm.copy_link_btn.bind("<Leave>", partial(bm.no_display_description, desc=bm.desc_copyLink))
+            bm.copy_link_btn.bind("<Button-1>", partial(bm.alert_description,off_desc=bm.desc_copyLink, on_desc=bm.desc_copiedLink, x=570, y=0))
+            
+            bm.view_btn.bind("<Enter>", partial(bm.display_description,desc=bm.desc_webview, x=635, y=5))
+            bm.view_btn.bind("<Leave>", partial(bm.no_display_description, desc=bm.desc_webview))
+        
         logger.debug("Created the Bookmarks widget.")
         
         self.addBookmarksBtn = tk.Button(
@@ -274,7 +284,7 @@ class Application(tk.Frame):
     # def quite(self):
     #     self.master.destroy()
 
-    
+import time    
 def main():
     root = Tk();
     # initial top screen size
@@ -284,18 +294,25 @@ def main():
     root.title()
     root.geometry(getGeometory(root, window_width, window_height))
 
+    # アプリの起動まで3秒かかる。
+    s_time = time.perf_counter()
     app = Application(master=root);
-
+    e_time = time.perf_counter()
+    logger.debug("実行時間: {}秒".format(e_time - s_time))
+    
     # ここで、アプリが動き続ける / アプリを終了するまで
     app.mainloop();
     
     # メモリを解放してくれる（thread）
     gc.collect()
-    
+
+
 def go():
     
     try:
+        
         main()
+        
     except Exception as err:
         print(err)   
         

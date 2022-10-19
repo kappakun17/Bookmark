@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from io import BytesIO
 from PIL import ImageTk, Image
 import pyperclip
@@ -7,6 +8,7 @@ import favicon
 import requests
 import webbrowser
 import re
+import time
 
 
 class my_Bookmark(tk.Canvas):
@@ -28,14 +30,20 @@ class my_Bookmark(tk.Canvas):
         
         # image
         self.BookmarkCardImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_card.png")
-        self.BookmarkFaviconImage = self.getUrlImage();
         self.BookmarkBrowserImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_browser_btn.png")
         self.BookmarkMenuImage = tk.PhotoImage(file="frontend/src/img/bookmark/boomkark_menu_btn.png")
         self.BookmarkViewImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_view_btn.png")
-        self.BookmarkLinkImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_link_btn.png")
+        self.BookmarkLinkImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_copy_link_btn.png")
+        self.BookmarkDescBrowserImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_browser.png")
+        self.BookmarkDescCopyLinkImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_copy_link.png")
+        self.BookmarkDescCopiedLinkImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_copied_link.png")
+        self.BookmarkDescWebviewImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_webview.png")
         
-        
-        
+        if bookmark['icon'] is None:
+            self.BookmarkFaviconImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_no_icon.png")
+        # icon blobデータがあれば、バイナリ変換し、pngへエンコードする。
+        else:
+            self.BookmarkFaviconImage = None
         
         # bookmark card
         tk.Canvas.__init__(self, master, cnf, **kw);
@@ -71,11 +79,10 @@ class my_Bookmark(tk.Canvas):
             relief = "flat",
             activebackground='#fffdf8'
             )
-        self.browser_btn.place(x=540,y=30)
-        # self.category_btn.bind('<Button-1>', self.test_category_btn)
+        self.browser_btn.place(x=540,y=50)
         
         # link button
-        self.link_btn = tk.Button(
+        self.copy_link_btn = tk.Button(
             self,
             image=self.BookmarkLinkImage,
             command=lambda:self.CopyUrlToClipBoard(),
@@ -86,8 +93,7 @@ class my_Bookmark(tk.Canvas):
             relief = "flat",
             activebackground='#fffdf8'
             )
-        self.link_btn.place(x=600,y=30)
-        # self.category_btn.bind('<Button-1>', self.test_category_btn)
+        self.copy_link_btn.place(x=600,y=50)
         
         # view button
         self.view_btn = tk.Button(
@@ -101,8 +107,7 @@ class my_Bookmark(tk.Canvas):
             relief = "flat",
             activebackground='#fffdf8'
             )
-        self.view_btn.place(x=660,y=30)
-        # self.category_btn.bind('<Button-1>', self.test_category_btn)
+        self.view_btn.place(x=660,y=50)
         
         # menu button
         self.menu_btn = tk.Button(
@@ -116,15 +121,38 @@ class my_Bookmark(tk.Canvas):
             relief = "flat",
             activebackground='#fffdf8'
             )
-        self.menu_btn.place(x=725,y=50)
-        # self.category_btn.bind('<Button-1>', self.test_category_btn)
+        self.menu_btn.place(x=725,y=70)
         
+        self.desc_browser = tk.Label(self, image=self.BookmarkDescBrowserImage, bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
+        # self.desc_browser.place(x=505, y=5)
         
+        self.desc_copyLink = tk.Label(self, image=self.BookmarkDescCopyLinkImage, bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
+        # self.desc_copyLink.place(x=570, y=5)
         
+        self.desc_copiedLink = tk.Label(self, image=self.BookmarkDescCopiedLinkImage, bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
+        # self.desc_copiedLink.place(x=570, y=0)
+        
+        self.desc_webview = tk.Label(self, image=self.BookmarkDescWebviewImage, bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
+        # self.desc_webview.place(x=635, y=5)
         
         self.pack(padx=(0,0))
         self.config(cursor='hand2')
         # self.bind('<Button-1>', self.test_category)
+    
+    
+    def display_description(self,event,desc, x, y):
+        time.sleep(0.6)
+        desc.place(x=x, y=y)
+
+    def no_display_description(self, event, desc):
+        desc.place_forget()
+    
+    def alert_description(self, event,off_desc, on_desc, x, y):
+        off_desc.place_forget()
+        on_desc.place(x=x, y=y)
+        
+        on_desc.after(1500, on_desc.place_forget)
+    
         
     # get favicon from url you specify. 
     def getUrlImage(self):
