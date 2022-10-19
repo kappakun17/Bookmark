@@ -20,7 +20,7 @@ class my_NoWebview(tk.Frame):
         self.goToEdgeBtn = tk.Button(
             self,
             image=self.GoToEdgeBtnImage,
-            command="openWebview",
+            command="",
             cursor="hand2",
             bg='#fffdf8',
             borderwidth=0,
@@ -38,4 +38,3 @@ class my_NoWebview(tk.Frame):
         
 
         self.pack(fill='both', pady=(400,400))
-        

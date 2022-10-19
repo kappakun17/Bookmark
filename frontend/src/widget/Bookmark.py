@@ -12,17 +12,17 @@ import re
 class my_Bookmark(tk.Canvas):
     def __init__(self, master=None, bookmark=None, cnf={}, **kw):
         
-        self.title = bookmark['title']        
+        self.name = bookmark['name']        
         self.url = bookmark['url']
         self.memo = bookmark['memo']
         
         # state
-        self.title_var = tk.StringVar("");
+        self.name_var = tk.StringVar();
         self.url_var = tk.StringVar()
-        self.memo_var = tk.StringVar("");
+        self.memo_var = tk.StringVar();
         
         # set state
-        self.title_var.set(self.title)
+        self.name_var.set(self.name)
         self.url_var.set(self.url);
         self.memo_var.set(self.memo)
         
@@ -53,7 +53,7 @@ class my_Bookmark(tk.Canvas):
         self.create_image(30, 30, image=self.BookmarkFaviconImage, anchor='nw')
         
         # title name
-        self.create_text(140,45, text=textCountChecker(self.title_var.get(),10), fill='#6251FA', anchor="nw",font=("HGPｺﾞｼｯｸE", "17", "bold"))
+        self.create_text(140,45, text=textCountChecker(self.name_var.get(),10), fill='#6251FA', anchor="nw",font=("HGPｺﾞｼｯｸE", "17", "bold"))
         # url
         self.create_text(140,90, text=textCountChecker(self.url_var.get(), 35), fill='#B9B9B9', anchor="nw",font=("HGPｺﾞｼｯｸE", "10", "bold"))
         # memo
@@ -130,20 +130,19 @@ class my_Bookmark(tk.Canvas):
     def getUrlImage(self):
         if not self.url_var.get(): return None    
         icons = favicon.get(self.url_var.get());
-        
-        print(icons)
-        
         re_icons=[]
         for icon in icons:
             if bool(re.match(r"(https?)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)\.((jpg|jpeg|gif|png|ico)$)", icon.url)):
                 re_icons.append(icon.url);
-        # print(re_icons)
-
-        icon = re_icons[0];
-        response = requests.get(icon, stream=True)
-        img_data = response.content
-        re_image_data = Image.open(BytesIO(img_data))
-        re_image_data = re_image_data.resize((80,80))
+        
+        if re_icons is None:
+            re_image_data = None
+        else:
+            icon = re_icons[0];
+            response = requests.get(icon, stream=True)
+            img_data = response.content
+            re_image_data = Image.open(BytesIO(img_data))
+            re_image_data = re_image_data.resize((80,80))
         return ImageTk.PhotoImage(re_image_data)
     
     def OpenUrlToBrowser(self):
@@ -157,3 +156,4 @@ class my_Bookmark(tk.Canvas):
             pyperclip.copy(self.url_var.get())
         else:
             print("can't copy because no having url")
+            
