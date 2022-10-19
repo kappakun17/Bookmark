@@ -11,6 +11,7 @@ class Database:
             "url"	TEXT NOT NULL,
             "memo"	TEXT,
             "folder_id"	INTEGER NOT NULL,
+            "icon" BLOB,
             PRIMARY KEY("id" AUTOINCREMENT)
         );
         CREATE TABLE IF NOT EXISTS "category" (
@@ -61,8 +62,8 @@ class Database:
         res = self.cur.execute("SELECT id, name, category_id FROM folder")
         folders = [Folder(row['id'], row['name'], row['category_id']) for row in res]
 
-        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark")
-        bookmarks = [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id, icon FROM bookmark")
+        bookmarks = [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'], row['icon']) for row in res]
 
         selected_data = {
             'category': [category.dict() for category in categories],
@@ -119,20 +120,20 @@ class Database:
         self.con.commit()
 
     def select_bookmark_id(self, bookmark_id):
-        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark WHERE id = ?", (bookmark_id,))
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id, icon FROM bookmark WHERE id = ?", (bookmark_id,))
         row = res.fetchone()
         if row is None:
             return None
-        return Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'])
+        return Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'], row['icon'])
 
-    def insert_bookmark(self, bookmark_name, bookmark_url, bookmark_memo, folder_id):
-        self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id) VALUES (?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id))
+    def insert_bookmark(self, bookmark_name, bookmark_url, bookmark_memo, folder_id, icon):
+        self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id) VALUES (?,?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id, icon))
         self.con.commit()
 
-    def update_bookmark(self, bookmark_id, bookmark_name, bookmark_url, bookmark_memo, folder_id):
-        self.cur.execute("UPDATE bookmark SET name = ?, url = ?, memo = ?, folder_id = ? WHERE id = ?", (bookmark_name, bookmark_url, bookmark_memo, folder_id, bookmark_id))
+    def update_bookmark(self, bookmark_id, bookmark_name, bookmark_url, bookmark_memo, folder_id, icon):
+        self.cur.execute("UPDATE bookmark SET name = ?, url = ?, memo = ?, folder_id = ?, icon = ? WHERE id = ?", (bookmark_name, bookmark_url, bookmark_memo, folder_id, icon, bookmark_id))
         self.con.commit()
 
-    def delete_folder(self, bookmark_id):
+    def delete_bookmark(self, bookmark_id):
         self.cur.execute("DELETE FROM bookmark WHERE id = ?", (bookmark_id,))
         self.con.commit()
