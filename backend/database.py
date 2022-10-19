@@ -119,8 +119,8 @@ class Database:
         return Folder(row['id'], row['name'], row['category_id'])
 
     def select_relate_folder_bookmark(self, folder_id):
-        res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark WHERE folder_id = ?", (folder_id,))
-        bookmarks =  [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
+        res = self.cur.execute("SELECT id, name, url, memo, folder_id, icon FROM bookmark WHERE folder_id = ?", (folder_id,))
+        bookmarks =  [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'], row['icon']) for row in res]
         selected_data = [bookmark.dict() for bookmark in bookmarks]
         return json.dumps(selected_data, indent=4, ensure_ascii=False)
        
@@ -145,7 +145,7 @@ class Database:
         return Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'], row['icon'])
 
     def insert_bookmark(self, bookmark_name, bookmark_url, bookmark_memo, folder_id, icon):
-        self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id) VALUES (?,?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id, icon))
+        self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id, icon) VALUES (?,?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id, icon))
         self.con.commit()
 
     def update_bookmark(self, bookmark_id, bookmark_name, bookmark_url, bookmark_memo, folder_id, icon):
