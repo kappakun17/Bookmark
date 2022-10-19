@@ -29,6 +29,21 @@ class Folder:
             'category_id': self.category_id,
         }
 
+class Category_Folders:
+    def __init__(self, category, folders):
+        self.category = category
+        self.folders = folders
+    
+    def __str__(self):
+        return self.category + "/" + str(len(self.folders)) + "Folders"
+    
+    def dict(self):
+        return {
+            'id': self.category.id,
+            'name': self.category.name,
+            'folders':[folder.dict() for folder in self.folders]
+        }
+
 class Bookmark:
     def __init__(self, id, name, url, memo, folder_id):
         self.id = id

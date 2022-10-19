@@ -1,6 +1,6 @@
 import json
 import sqlite3
-from .model import Category, Folder, Bookmark
+from .model import Category, Folder, Bookmark, Category_Folders
 
 class Database:
     DATABASE_SCHEMA = '''
@@ -37,7 +37,7 @@ class Database:
 
     def __init__(self) -> None:
         self.db = "sqlite3.db"
-        self.con = sqlite3.connect(self.db)
+        self.con = sqlite3.connect(self.db, check_same_thread=False)
         self.con.row_factory = sqlite3.Row
         self.cur = self.con.cursor()
 
@@ -60,6 +60,7 @@ class Database:
 
         res = self.cur.execute("SELECT id, name, category_id FROM folder")
         folders = [Folder(row['id'], row['name'], row['category_id']) for row in res]
+        [print(folder.dict()) for folder in folders]
 
         res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark")
         bookmarks = [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
@@ -69,7 +70,21 @@ class Database:
             'folder': [folder.dict() for folder in folders],
             'bookmark': [bookmark.dict() for bookmark in bookmarks],
         }
-        return json.dumps(selected_data, indent = 4)
+        return json.dumps(selected_data, indent = 4, ensure_ascii=False)
+    
+    def select_all_categorys_and_folders(self):
+        res_category = self.cur.execute("SELECT id, name FROM category")
+        rows_category = res_category.fetchall()
+        categorys = [Category(row['id'], row['name']) for row in rows_category]
+        
+        selected_data = []
+        for i, category in enumerate(categorys, start=1):
+            folders = self.select_relate_category_folder(i)
+            
+            data = Category_Folders(category, folders)
+            selected_data.append(data.dict())
+        
+        return json.dumps(selected_data, indent = 4, ensure_ascii=False)
 
 
     def select_category_id(self, category_id):
@@ -104,8 +119,11 @@ class Database:
 
     def select_relate_folder_bookmark(self, folder_id):
         res = self.cur.execute("SELECT id, name, url, memo, folder_id FROM bookmark WHERE folder_id = ?", (folder_id,))
-        return [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
-
+        bookmarks =  [Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id']) for row in res]
+        selected_data = [bookmark.dict() for bookmark in bookmarks]
+        return json.dumps(selected_data, indent=4, ensure_ascii=False)
+       
+    
     def insert_folder(self, folder_name, category_id):
         self.cur.execute("INSERT INTO folder(name, category_id) VALUES (?,?)", (folder_name, category_id))
         self.con.commit()
@@ -136,3 +154,5 @@ class Database:
     def delete_folder(self, bookmark_id):
         self.cur.execute("DELETE FROM bookmark WHERE id = ?", (bookmark_id,))
         self.con.commit()
+
+    
