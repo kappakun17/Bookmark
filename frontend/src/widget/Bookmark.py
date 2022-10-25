@@ -10,6 +10,8 @@ import webbrowser
 import re
 import time
 
+from frontend.src.widget.Dialogs_MenuBars import my_Dialogs_MenuBars
+
 
 class my_Bookmark(tk.Canvas):
     def __init__(self, master=None, bookmark=None, cnf={}, **kw):
@@ -122,6 +124,7 @@ class my_Bookmark(tk.Canvas):
             activebackground='#fffdf8'
             )
         self.menu_btn.place(x=725,y=70)
+        self.menu_btn.bind('<Button-1>', self.open_menu_bar)
         
         self.desc_browser = tk.Label(self, image=self.BookmarkDescBrowserImage, bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
         # self.desc_browser.place(x=505, y=5)
@@ -153,6 +156,8 @@ class my_Bookmark(tk.Canvas):
         
         on_desc.after(1500, on_desc.place_forget)
     
+    def open_menu_bar(self, event):
+        my_Dialogs_MenuBars(self).create_bookmark_menu(self.name_var.get())
         
     # get favicon from url you specify. 
     def getUrlImage(self):

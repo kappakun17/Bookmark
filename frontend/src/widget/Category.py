@@ -1,9 +1,7 @@
 from msilib.schema import CreateFolder
 import tkinter as tk
 from tkinter import messagebox
-
-from frontend.src.widget.ModalDialogSampleApp import ModalDialogSampleApp
-from frontend.src.widget.dialog.dialog import MyDialog
+from frontend.src.widget.Dialogs_MenuBars import my_Dialogs_MenuBars
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,9 +42,7 @@ class my_Category(tk.Canvas):
     
             
     def test_category_btn(self, event):
-        ModalDialogSampleApp(self).create_modal_dialog()
-        # MyDialog(self)
-        self.update_idletasks()
+        my_Dialogs_MenuBars(self).create_category_menu(self.json_category['name'])
         
     def set_folders_frame(self, folders_frame):
         self.folders_frame = folders_frame
