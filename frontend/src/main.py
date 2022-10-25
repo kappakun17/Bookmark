@@ -174,7 +174,7 @@ class Application(tk.Frame):
     def create_category(self):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
-            category_obj = my_Category(cf, category[i])
+            category_obj = my_Category(cf, category[i], DB=self.db)
             category_obj.bind('<Button-1>', partial(self.toggle_categoryBtn, category = category_obj))
             cf.set_category(category_obj)
             print('testf')

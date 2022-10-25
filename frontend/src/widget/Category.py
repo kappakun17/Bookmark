@@ -7,7 +7,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 class my_Category(tk.Canvas):
-    def __init__(self, master=None, category=None, cnf={}, **kw):
+    def __init__(self, master=None, category=None, DB=None, cnf={}, **kw):
+        
+        self.db = DB
         self.json_category = category
         
         self.folders_frame = None;
@@ -34,15 +36,15 @@ class my_Category(tk.Canvas):
             activebackground='#E893B1'
             )
         self.category_btn.place(x=400,y=30)
-        self.category_btn.bind('<Button-1>', self.test_category_btn)
+        self.category_btn.bind('<Button-1>', self.open_menuBar)
         self.pack()
         self.config(cursor='hand2')
         
         logger.debug('Create the category widget.')
     
             
-    def test_category_btn(self, event):
-        my_Dialogs_MenuBars(self).create_category_menu(self.json_category['name'])
+    def open_menuBar(self, event):
+        self.menu_bar = my_Dialogs_MenuBars(self, DB=self.db).create_category_menu(self.json_category['name'])
         
     def set_folders_frame(self, folders_frame):
         self.folders_frame = folders_frame
