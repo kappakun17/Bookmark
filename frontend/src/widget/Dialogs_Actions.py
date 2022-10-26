@@ -5,19 +5,16 @@ from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
 
 class my_Dialogs_Actions(tk.Frame):
 
-    def __init__(self, master=None,title=None, key=None, action=None, DB=None):
+    def __init__(self, master=None,title=None, key=None, action=None, DB=None, APP=None):
         super().__init__(master)
         
+        self.master = master
         self.screen = None
+        self.app = APP
         self.db = DB
         self.title = title
         self.key = key
         self.action = action
-        
-        print(self.key)
-        print(self.action)
-        
-        print(self.db)
         
         self.actionTrigger = {
             'add':self.create_add_screen,
@@ -38,16 +35,33 @@ class my_Dialogs_Actions(tk.Frame):
             'folder':"フォルダー",
             'bookmark':"ブックマーク"
         }
+
+        self.keyColor = {
+            'category': {
+                'background-color':'#E893B1',
+                'font-color':'#FFFFFF'
+            },
+            'folder': {
+                'background-color':'#E6E6E6',
+                'font-color':'#6251FA'
+            },
+            'bookmark':{
+                'background-color':'#6251FA',
+                'font-color':'#FFFDF8',
+            }
+        }
         
         if self.action not in self.actionTrigger: return
         else:
             event = self.actionTrigger[self.action]
             event()
-            
+        # self.db.insert_category('test')
+        # self.app.re_render_categoryAndFolders()
+        
     def create_dialog(self):
         dialog = tk.Toplevel(self, bg='#fffdf8')
         dialog.title("Bookmark Action")
-        dialog.geometry(getGeometory(self, 1000, 600))
+        dialog.geometry(getGeometory(self.master.master, 1000, 600))
         dialog.grab_set()
         dialog.focus_set()
         dialog.transient(self.master)
@@ -75,7 +89,7 @@ class my_Dialogs_Actions(tk.Frame):
     
     
     def create_header_bar(self, master):
-        header_label = tk.Label(master, text=self.title, bg='#E893B1', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground='white')
+        header_label = tk.Label(master, text=self.title, bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
         header_label.pack(fill='x', anchor='ne', ipady=15)
         
     def create_title_bar(self,master):
@@ -84,3 +98,7 @@ class my_Dialogs_Actions(tk.Frame):
         
     def get_title_name(self, key, action):
         return "{}の{}".format(self.keyName[key], self.actionTitle[action])
+
+    def DB_insert_category_title(self):
+        
+        self.app.re_render_categoryAndFolders()

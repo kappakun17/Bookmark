@@ -83,6 +83,7 @@ class Application(tk.Frame):
         logger.debug('Compleated to initial running the app.')
             
     def startup(self):
+        print(self)
         # db
         self.db = self.start_db()
         
@@ -99,7 +100,7 @@ class Application(tk.Frame):
          
         self.folder_key_var = tk.IntVar()
         self.folder_key_var.set(1);
-        self.set_JsonBookmards()
+        self.set_JsonBookmarks()
         logger.debug('json data: {}'.format(self.json_bookmarks))
         
         # image instance
@@ -126,7 +127,7 @@ class Application(tk.Frame):
     
     def create_widgets(self):
         
-        # consist of application    
+        # consist of application
         self.master.geometry("2700x1200")
         self.master.title("ITL Bookmark")
         self.master.configure(bg = "#fffdf8")
@@ -160,6 +161,8 @@ class Application(tk.Frame):
     def create_category_and_folders(self):
         # create category & folders
         self.categoryAndFolders = []
+        self.set_JsonCategoryAndFolders()
+
         for category in self.json_categoryAndFolders:
             cf = my_CategoryAndFoldersFrame(self.sf_1.inner_frame, category=category)
             self.categoryAndFolders.append(cf)
@@ -174,7 +177,7 @@ class Application(tk.Frame):
     def create_category(self):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
-            category_obj = my_Category(cf, category[i], DB=self.db)
+            category_obj = my_Category(cf, category[i], DB=self.db, APP=self)
             category_obj.bind('<Button-1>', partial(self.toggle_categoryBtn, category = category_obj))
             cf.set_category(category_obj)
             print('testf')
@@ -192,7 +195,7 @@ class Application(tk.Frame):
                 cf.category.folders_frame.append_folders(folder_obj)
         
     def create_bookmarks(self):
-        self.set_JsonBookmards()
+        self.set_JsonBookmarks()
         for bookmark in self.json_bookmarks:
             bm = my_Bookmark(self.sf_2.inner_frame, bookmark=bookmark)
             bm.view_btn.configure(command=partial(self.re_render_Webview, url=bookmark['url']))
@@ -252,7 +255,9 @@ class Application(tk.Frame):
         categoryAndoFolders = self.sf_1.inner_frame.winfo_children()
         for cf in categoryAndoFolders:
             cf.destroy()
-        self.categoryAndFolders()
+        time.sleep(4)
+        self.render_categoryAndFolders()
+        
     
     def re_render_bookmarks(self,event=None, folder_key=None):
         if folder_key == self.folder_key_var.get(): return
@@ -275,8 +280,9 @@ class Application(tk.Frame):
         
     def set_JsonCategoryAndFolders(self):
         self.json_categoryAndFolders = json.loads(self.db.select_all_categorys_and_folders())
+        print(self.json_categoryAndFolders)
 
-    def set_JsonBookmards(self):
+    def set_JsonBookmarks(self):
         folder_key = self.folder_key_var.get()
         self.json_bookmarks = json.loads(self.db.select_relate_folder_bookmark(folder_key));
     
@@ -293,16 +299,16 @@ def main():
     
     root.title()
     root.geometry(getGeometory(root, window_width, window_height))
-
+    root.state('zoomed')
     # アプリの起動まで3秒かかる。
     s_time = time.perf_counter()
     app = Application(master=root);
     e_time = time.perf_counter()
     logger.debug("実行時間: {}秒".format(e_time - s_time))
-    
+
     # ここで、アプリが動き続ける / アプリを終了するまで
     app.mainloop();
-    
+
     # メモリを解放してくれる（thread）
     gc.collect()
 
