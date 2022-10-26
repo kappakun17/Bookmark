@@ -7,11 +7,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 class my_Category(tk.Canvas):
-    def __init__(self, master=None, category=None, DB=None, cnf={}, **kw):
+    def __init__(self, master=None, category=None, DB=None, APP=None, cnf={}, **kw):
         
         self.db = DB
+        self.app = APP
         self.json_category = category
-        
+
+        print(self.app)
+
+
         self.folders_frame = None;
         self.isFolders = tk.BooleanVar();
         self.isFolders.set(False)
@@ -44,7 +48,7 @@ class my_Category(tk.Canvas):
     
             
     def open_menuBar(self, event):
-        self.menu_bar = my_Dialogs_MenuBars(self, DB=self.db).create_category_menu(self.json_category['name'])
+        self.menu_bar = my_Dialogs_MenuBars(self, DB=self.db, APP=self.app).create_category_menu(self.json_category['name'])
         
     def set_folders_frame(self, folders_frame):
         self.folders_frame = folders_frame

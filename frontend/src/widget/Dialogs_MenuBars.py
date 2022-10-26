@@ -11,8 +11,9 @@ from frontend.src.widget.Dialogs_Actions import my_Dialogs_Actions
 
 class my_Dialogs_MenuBars(tk.Frame):
 
-    def __init__(self, master = None, DB=None):
+    def __init__(self, master = None, DB=None, APP=None):
         super().__init__(master)
+        self.app = APP
         self.db = DB
         self.title = None
         
@@ -61,4 +62,4 @@ class my_Dialogs_MenuBars(tk.Frame):
         if self.title is None: return print("タイトルがありません。") 
         self.destroy()
         master = self.master
-        self.action_screen = my_Dialogs_Actions(master, title=self.title, key=key, action=action, DB=self.db)
+        self.action_screen = my_Dialogs_Actions(master, title=self.title, key=key, action=action, DB=self.db, APP=self.app)
