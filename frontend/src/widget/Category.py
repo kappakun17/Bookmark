@@ -7,11 +7,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 class my_Category(tk.Canvas):
-    def __init__(self, master=None, category=None, DB=None, APP=None, cnf={}, **kw):
+    def __init__(self, master=None, DB=None, APP=None, JSON=None, cnf={}, **kw):
         
         self.db = DB
         self.app = APP
-        self.json_category = category
+        self.json = JSON
 
         print(self.app)
 
@@ -26,7 +26,7 @@ class my_Category(tk.Canvas):
         tk.Canvas.__init__(self, master, cnf, **kw);
         self.configure(width=449,height=60,bg="#fffdf8",highlightthickness=0,relief='ridge')
         self.create_image(0,0, image=self.CategoryImage, anchor='nw')
-        self.create_text(40,20, text=self.json_category['name'], fill='#ffffff', anchor="nw",font=("HGPｺﾞｼｯｸE", "11", "bold"))
+        self.create_text(40,20, text=self.json['name'], fill='#ffffff', anchor="nw",font=("HGPｺﾞｼｯｸE", "11", "bold"))
         
         self.category_btn = tk.Button(
             self,
@@ -48,7 +48,7 @@ class my_Category(tk.Canvas):
     
             
     def open_menuBar(self, event):
-        self.menu_bar = my_Dialogs_MenuBars(self, DB=self.db, APP=self.app).create_category_menu(self.json_category['name'])
+        self.menu_bar = my_Dialogs_MenuBars(self, DB=self.db, APP=self.app, JSON=self.json).create_category_menu()
         
     def set_folders_frame(self, folders_frame):
         self.folders_frame = folders_frame

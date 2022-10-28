@@ -1,3 +1,4 @@
+from functools import partial
 import tkinter as tk
 
 from frontend.src.utilities.geometory.geometory import getGeometory
@@ -5,14 +6,21 @@ from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
 
 class my_Dialogs_Actions(tk.Frame):
 
-    def __init__(self, master=None,title=None, key=None, action=None, DB=None, APP=None):
+    def __init__(self, master=None, key=None, action=None, DB=None, APP=None, JSON=None):
         super().__init__(master)
         
+        self.dialog = None
         self.master = master
         self.screen = None
         self.app = APP
         self.db = DB
-        self.title = title
+        self.json = JSON
+        
+        print(self.json)
+        
+        # ==== keyとactionを使うことで、どのジャンルのどの処理を求めているかを判定する
+        # ==== key -> category or folder or bookmark
+        # ==== action -> add or rename or edit or delete
         self.key = key
         self.action = action
         
@@ -55,8 +63,6 @@ class my_Dialogs_Actions(tk.Frame):
         else:
             event = self.actionTrigger[self.action]
             event()
-        # self.db.insert_category('test')
-        # self.app.re_render_categoryAndFolders()
         
     def create_dialog(self):
         dialog = tk.Toplevel(self, bg='#fffdf8')
@@ -72,8 +78,15 @@ class my_Dialogs_Actions(tk.Frame):
         return dialog
     
     def create_add_screen(self):
-        dialog = self.create_dialog()
-        self.screen = my_Dialogs_AddScreen(dialog, self.key)
+        self.dialog = self.create_dialog()
+        self.screen = my_Dialogs_AddScreen(self.dialog, self.key)
+        
+        db_params = self.screen.get_params()
+        print(db_params)
+        
+        # self.screen.submit_btn.bind('<Button-1', partial())
+        self.screen.submit_btn.configure(command = partial(self.DB_insert_category_title, kw=db_params))
+        self.screen.cancel_btn.configure(command = lambda:self.close_action_screen())
     
     def create_rename_screen(self):
         dialog = self.create_dialog()
@@ -89,7 +102,7 @@ class my_Dialogs_Actions(tk.Frame):
     
     
     def create_header_bar(self, master):
-        header_label = tk.Label(master, text=self.title, bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
+        header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
         header_label.pack(fill='x', anchor='ne', ipady=15)
         
     def create_title_bar(self,master):
@@ -99,6 +112,27 @@ class my_Dialogs_Actions(tk.Frame):
     def get_title_name(self, key, action):
         return "{}の{}".format(self.keyName[key], self.actionTitle[action])
 
-    def DB_insert_category_title(self):
+    # === **kw -> データベース登録に必要なparameter
+    
+    def DB_insert_category_title(self, **kw):
+        print(kw)
+        category_name = kw.get('name')
+        print(kw.get('name'));
+        if category_name is None: return
         
+        self.db.insert_category(category_name = category_name)
         self.app.re_render_categoryAndFolders()
+        print('通りました。')
+        
+    def DB_insert_folder_title(self, **kw):
+        folder_name = kw['name']
+        category_id = self.json['category_id']
+        if folder_name is None: return
+        
+        self.db.insert_folder(folder_name, category_id)
+        self.app.re_render_categoryAndFolders()
+
+        
+    
+    def close_action_screen(self):
+        self.dialog.destroy()

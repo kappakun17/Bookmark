@@ -1,4 +1,5 @@
 # library
+from concurrent.futures import ProcessPoolExecutor
 import os
 from sqlite3 import Cursor
 # tk
@@ -6,6 +7,7 @@ import tkinter
 import tkinter as tk
 from tkinter import ttk
 from tkinter import BooleanVar, Frame, PhotoImage,Tk,Button,Entry,Label, Canvas
+from winreg import LoadKey
 from tkscrolledframe import ScrolledFrame
 
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -43,6 +45,7 @@ from frontend.src.widget.Bookmark import my_Bookmark
 from frontend.src.widget.WebviewFrame import my_WebviewFrame
 from frontend.src.widget.NoWebview import my_NoWebview
 from frontend.src.widget.Webview import my_Webview
+from frontend.src.widget.GitPlayer import TkGif
 # from widget.TitleLabel import display_title_label
 
 
@@ -77,7 +80,11 @@ class Application(tk.Frame):
         super().__init__(master)
         
         self.startup();
-        self.create_widgets()
+        
+        
+        loading = self.run_loading()
+        self.after(5000,loading.destroy)
+        self.after(5050,self.create_widgets)
         
         # self.master.protocol("WM_DELETE_WINDOW", self.quite)
         logger.debug('Compleated to initial running the app.')
@@ -90,6 +97,8 @@ class Application(tk.Frame):
         # state
         self.categoryAndFolders = None
         self.webview = None;
+        
+        self.loading_path = './frontend/src/img/loading/loading.gif'
         
         self.current_url_var = tk.StringVar()
         self.current_url_var.set("https://www.bing.com")
@@ -116,6 +125,13 @@ class Application(tk.Frame):
         ScrolledFrame._DEFAULT_SCROLLBARS = "vertical"
         logger.debug('Successed run the startup func.')
         
+        # consist of application
+        self.master.geometry("2700x1200")
+        self.master.title("ITL Bookmark")
+        self.master.configure(bg = "#fffdf8")
+        self.pack()
+        logger.debug('Created the window.')
+        
     def start_db(self):
         db = Database()
         db.rebuildDB()
@@ -127,12 +143,7 @@ class Application(tk.Frame):
     
     def create_widgets(self):
         
-        # consist of application
-        self.master.geometry("2700x1200")
-        self.master.title("ITL Bookmark")
-        self.master.configure(bg = "#fffdf8")
-        self.pack()
-        logger.debug('Created the window.')
+        
         
         # each frame widget
         self.frame1 = my_FrameLeft(self.master);
@@ -177,7 +188,7 @@ class Application(tk.Frame):
     def create_category(self):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
-            category_obj = my_Category(cf, category[i], DB=self.db, APP=self)
+            category_obj = my_Category(cf, DB=self.db, APP=self, JSON=category[i],)
             category_obj.bind('<Button-1>', partial(self.toggle_categoryBtn, category = category_obj))
             cf.set_category(category_obj)
             print('testf')
@@ -285,10 +296,21 @@ class Application(tk.Frame):
     def set_JsonBookmarks(self):
         folder_key = self.folder_key_var.get()
         self.json_bookmarks = json.loads(self.db.select_relate_folder_bookmark(folder_key));
-    
-    
-    # def quite(self):
-    #     self.master.destroy()
+        
+    def run_loading(self):
+        # initial top screen size
+        self.master.configure( bg='#FCFCFF')
+        main_frame = tk.Frame(self.master, bg='#FCFCFF')
+        main_frame.pack(fill='both', anchor='center', pady=400)
+
+        label = tk.Label(main_frame, borderwidth=0, bg='#FCFCFF')
+        label.pack()
+        
+        gif_player = TkGif(self.loading_path, label)
+        gif_player.play()
+        
+        return main_frame
+
 
 import time    
 def main():
@@ -299,7 +321,8 @@ def main():
     
     root.title()
     root.geometry(getGeometory(root, window_width, window_height))
-    root.state('zoomed')
+
+    # root.state('zoomed')
     # アプリの起動まで3秒かかる。
     s_time = time.perf_counter()
     app = Application(master=root);
@@ -307,7 +330,10 @@ def main():
     logger.debug("実行時間: {}秒".format(e_time - s_time))
 
     # ここで、アプリが動き続ける / アプリを終了するまで
-    app.mainloop();
+
+    app.mainloop()
+   
+        
 
     # メモリを解放してくれる（thread）
     gc.collect()
