@@ -49,4 +49,4 @@ class my_Folder(tk.Canvas):
         print('click the folder')
         
     def open_menu_bar(self, event):
-        my_Dialogs_MenuBars(self).create_folder_menu(self.json_folder['name'])
+        my_Dialogs_MenuBars(self, JSON = self.json_folder).create_folder_menu()
