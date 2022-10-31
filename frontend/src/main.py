@@ -201,7 +201,7 @@ class Application(tk.Frame):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
             for j ,folders in enumerate(category[i]['folders']):
-                folder_obj = my_Folder(cf.category.folders_frame, folder=category[i]['folders'][j])
+                folder_obj = my_Folder(cf.category.folders_frame,DB=self.db, APP=self, JSON=category[i]['folders'][j])
                 folder_obj.bind('<Button-1>', partial(self.re_render_bookmarks,folder_key=folder_obj.id_var.get()))
                 cf.category.folders_frame.append_folders(folder_obj)
         
@@ -270,8 +270,9 @@ class Application(tk.Frame):
         self.render_categoryAndFolders()
         
     
-    def re_render_bookmarks(self,event=None, folder_key=None):
-        if folder_key == self.folder_key_var.get(): return
+    def re_render_bookmarks(self,event=None, folder_key=None, is_force_reload=False):
+        if not is_force_reload:
+            if folder_key == self.folder_key_var.get(): return
         
         bookmarks = self.sf_2.inner_frame.winfo_children()
         for bookmark in bookmarks:
@@ -280,7 +281,7 @@ class Application(tk.Frame):
         self.addBookmarksBtn.destroy()
         print(folder_key)
         self.folder_key_var.set(folder_key);
-        print(self.folder_key_var.get())
+        print(str(self.folder_key_var.get()))
         self.render_bookmarks()
     
     def re_render_Webview(self,event=None, url=None):

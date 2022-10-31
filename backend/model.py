@@ -1,4 +1,7 @@
 
+import base64
+
+
 class Category:
     def __init__(self, id, name):
         self.id = id
@@ -56,6 +59,10 @@ class Bookmark:
 
     def __str__(self):
         return "Bookmark(" + self.name + ")"
+    
+    def convertBynaryToStr(self, icon):
+        if icon is None: return icon;
+        return base64.b64encode(icon).decode()
 
     def dict(self):
         return {
@@ -64,5 +71,5 @@ class Bookmark:
             'url': self.url,
             'memo': self.memo,
             'folder_id': self.folder_id,
-            'icon': self.icon
+            'icon': self.convertBynaryToStr(self.icon)
         }

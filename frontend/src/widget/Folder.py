@@ -3,7 +3,7 @@ import tkinter as tk
 from frontend.src.widget.Dialogs_MenuBars import my_Dialogs_MenuBars
 
 class my_Folder(tk.Canvas):
-    def __init__(self, master=None, folder=None, cnf={}, **kw):
+    def __init__(self, master=None, DB=None, APP=None, JSON=None, cnf={}, **kw):
         
         self.FolderImage = tk.PhotoImage(file="frontend/src/img/folder/folder.png");
         self.FolderBtnImage = tk.PhotoImage(fil="frontend/src/img/folder/folder_btn.png");
@@ -12,9 +12,10 @@ class my_Folder(tk.Canvas):
         # self.FolderBtnImage = kw.get('folder_btn_img', 0)
         
         tk.Canvas.__init__(self, master, cnf, **kw)
-        
-        self.json_folder = folder
-        self.id_var.set(folder['id'])
+        self.app = APP
+        self.db = DB
+        self.json_folder = JSON
+        self.id_var.set(self.json_folder['id'])
         
         self.configure(
             width=429,
@@ -49,4 +50,5 @@ class my_Folder(tk.Canvas):
         print('click the folder')
         
     def open_menu_bar(self, event):
-        my_Dialogs_MenuBars(self, JSON = self.json_folder).create_folder_menu()
+        print(self.json_folder)
+        my_Dialogs_MenuBars(self, APP=self.app, DB=self.db, JSON =self.json_folder).create_folder_menu()
