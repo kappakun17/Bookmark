@@ -16,6 +16,4 @@ class my_WebviewFrame(tk.Frame):
         self.webviewheaderside.pack(anchor='nw', side='top', fill='x', pady=(0,0))
         
         self.pack(anchor='center',fill='both', expand=True, padx=(0,0), pady=0)
-        print('立ち上げました。')
-        
 

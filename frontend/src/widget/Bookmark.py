@@ -1,5 +1,6 @@
+import base64
 from concurrent.futures import ThreadPoolExecutor
-from io import BytesIO
+import io
 from PIL import ImageTk, Image
 import pyperclip
 from frontend.src.utilities.text.text import textIndention,textCountChecker
@@ -43,10 +44,12 @@ class my_Bookmark(tk.Canvas):
         
         if bookmark['icon'] is None:
             self.BookmarkFaviconImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_no_icon.png")
+            
         # icon blobデータがあれば、バイナリ変換し、pngへエンコードする。
         else:
-            self.BookmarkFaviconImage = None
-        
+            icon = self.convertBynaryToImage(self.convertStrToBynary(bookmark['icon']))
+            self.BookmarkFaviconImage = ImageTk.PhotoImage(self.resizeImage(icon))
+
         # bookmark card
         tk.Canvas.__init__(self, master, cnf, **kw);
         self.configure(
@@ -158,25 +161,20 @@ class my_Bookmark(tk.Canvas):
     
     def open_menu_bar(self, event):
         my_Dialogs_MenuBars(self).create_bookmark_menu(self.name_var.get())
-        
-    # get favicon from url you specify. 
-    def getUrlImage(self):
-        if not self.url_var.get(): return None    
-        icons = favicon.get(self.url_var.get());
-        re_icons=[]
-        for icon in icons:
-            if bool(re.match(r"(https?)(:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+)\.((jpg|jpeg|gif|png|ico)$)", icon.url)):
-                re_icons.append(icon.url);
-        
-        if re_icons is None:
-            re_image_data = None
-        else:
-            icon = re_icons[0];
-            response = requests.get(icon, stream=True)
-            img_data = response.content
-            re_image_data = Image.open(BytesIO(img_data))
-            re_image_data = re_image_data.resize((80,80))
-        return ImageTk.PhotoImage(re_image_data)
+    
+    
+    def convertStrToBynary(self, icon_s):
+        if icon_s is None: return icon_s
+        return base64.b64decode(icon_s.encode())
+    
+    def convertBynaryToImage(self, icon_b):
+        if icon_b is None: return icon_b
+        print(icon_b)
+        print(type(icon_b))
+        return Image.open(io.BytesIO(icon_b))
+    
+    def resizeImage(self, icon):
+        return icon.resize((70,70))
     
     def OpenUrlToBrowser(self):
         if self.url_var.get():
