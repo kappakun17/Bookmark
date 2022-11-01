@@ -48,7 +48,7 @@ class my_Dialogs_MenuBars(tk.Frame):
         self.folderMenu.folder_delete_btn.bind("<Button-1>", partial(self.open_screen, key='folder', action='delete'))
         self.wait_window(folder_dialog)
         
-    def create_bookmark_menu(self, title):
+    def create_bookmark_menu(self):
         self.name = self.json['name']
         bookmark_dialog = self.create_dialog("Bookmark Menu")
         self.bookmarkMenu = my_BookmarkMenu(bookmark_dialog, title=self.name)

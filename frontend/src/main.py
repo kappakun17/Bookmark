@@ -23,6 +23,7 @@ import logging
 # module
 # backend
 from backend.database import Database
+
 from test_front import test_data
 
 # frontend
@@ -46,6 +47,7 @@ from frontend.src.widget.WebviewFrame import my_WebviewFrame
 from frontend.src.widget.NoWebview import my_NoWebview
 from frontend.src.widget.Webview import my_Webview
 from frontend.src.widget.GitPlayer import TkGif
+from frontend.src.widget.Dialogs_Actions import my_Dialogs_Actions
 # from widget.TitleLabel import display_title_label
 
 
@@ -208,7 +210,7 @@ class Application(tk.Frame):
     def create_bookmarks(self):
         self.set_JsonBookmarks()
         for bookmark in self.json_bookmarks:
-            bm = my_Bookmark(self.sf_2.inner_frame, bookmark=bookmark)
+            bm = my_Bookmark(self.sf_2.inner_frame, DB=self.db, APP=self, JSON=bookmark)
             bm.view_btn.configure(command=partial(self.re_render_Webview, url=bookmark['url']))
             
             bm.browser_btn.bind("<Enter>", partial(bm.display_description,desc=bm.desc_browser, x=505, y=5))
@@ -236,6 +238,7 @@ class Application(tk.Frame):
         )
     
         self.addBookmarksBtn.pack(side='top', pady=(20, 0))
+        self.addBookmarksBtn.configure(command=lambda:self.set_my_Dialogs_Action_add_bookmark)
         logger.debug('Successed to create the bookmarks.')
     
     def create_Webview(self):
@@ -289,7 +292,15 @@ class Application(tk.Frame):
         URL = url if url else self.current_url_var.get()
         self.webview = my_Webview(self.webviewFrame, url=URL)
         logger.debug('Successed to update the webview screen.')
+
+    def set_my_Dialogs_Action_add_bookmark(self):
+        json = {
+            'name':'新規追加',
+            'folder_id':self.folder_key_var.get()
+        }
         
+        return my_Dialogs_Actions(master = self, key='bookmark', action='add', DB=self.db, APP=self, JSON=json).create_add_screen()
+    
     def set_JsonCategoryAndFolders(self):
         self.json_categoryAndFolders = json.loads(self.db.select_all_categorys_and_folders())
         print(self.json_categoryAndFolders)
