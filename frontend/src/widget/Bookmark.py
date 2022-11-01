@@ -15,21 +15,21 @@ from frontend.src.widget.Dialogs_MenuBars import my_Dialogs_MenuBars
 
 
 class my_Bookmark(tk.Canvas):
-    def __init__(self, master=None, bookmark=None, cnf={}, **kw):
+    def __init__(self, master=None, DB=None, APP=None, JSON = None, cnf={}, **kw):
         
-        self.name = bookmark['name']        
-        self.url = bookmark['url']
-        self.memo = bookmark['memo']
-        
+        self.db = DB
+        self.app = APP
+        self.json = JSON
+    
         # state
         self.name_var = tk.StringVar();
         self.url_var = tk.StringVar()
         self.memo_var = tk.StringVar();
         
         # set state
-        self.name_var.set(self.name)
-        self.url_var.set(self.url);
-        self.memo_var.set(self.memo)
+        self.name_var.set(self.json['name'])
+        self.url_var.set(self.json['url']);
+        self.memo_var.set(self.json['memo'])
         
         # image
         self.BookmarkCardImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_card.png")
@@ -42,12 +42,12 @@ class my_Bookmark(tk.Canvas):
         self.BookmarkDescCopiedLinkImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_copied_link.png")
         self.BookmarkDescWebviewImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_description_webview.png")
         
-        if bookmark['icon'] is None:
+        if self.json['icon'] is None:
             self.BookmarkFaviconImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_no_icon.png")
             
         # icon blobデータがあれば、バイナリ変換し、pngへエンコードする。
         else:
-            icon = self.convertBynaryToImage(self.convertStrToBynary(bookmark['icon']))
+            icon = self.convertBynaryToImage(self.convertStrToBynary(self.json['icon']))
             self.BookmarkFaviconImage = ImageTk.PhotoImage(self.resizeImage(icon))
 
         # bookmark card
@@ -145,24 +145,6 @@ class my_Bookmark(tk.Canvas):
         self.config(cursor='hand2')
         # self.bind('<Button-1>', self.test_category)
     
-    
-    def display_description(self,event,desc, x, y):
-        time.sleep(0.6)
-        desc.place(x=x, y=y)
-
-    def no_display_description(self, event, desc):
-        desc.place_forget()
-    
-    def alert_description(self, event,off_desc, on_desc, x, y):
-        off_desc.place_forget()
-        on_desc.place(x=x, y=y)
-        
-        on_desc.after(1500, on_desc.place_forget)
-    
-    def open_menu_bar(self, event):
-        my_Dialogs_MenuBars(self).create_bookmark_menu(self.name_var.get())
-    
-    
     def convertStrToBynary(self, icon_s):
         if icon_s is None: return icon_s
         return base64.b64decode(icon_s.encode())
@@ -187,4 +169,23 @@ class my_Bookmark(tk.Canvas):
             pyperclip.copy(self.url_var.get())
         else:
             print("can't copy because no having url")
+    
+    def display_description(self,event,desc, x, y):
+        time.sleep(0.6)
+        desc.place(x=x, y=y)
+
+    def no_display_description(self, event, desc):
+        desc.place_forget()
+    
+    def alert_description(self, event,off_desc, on_desc, x, y):
+        off_desc.place_forget()
+        on_desc.place(x=x, y=y)
+        
+        on_desc.after(1500, on_desc.place_forget)
+    
+    def open_menu_bar(self, event):
+        my_Dialogs_MenuBars(self, DB=self.db, APP=self.app, JSON=self.json).create_bookmark_menu()
+    
+    
+    
             
