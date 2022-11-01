@@ -175,7 +175,7 @@ class my_Dialogs_Actions(tk.Frame):
         
         if db_params is None or JSON_folder_id is None: return
 
-        # if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
+        if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
         
         icon = self.getUrlImage(db_params['url'])
         
@@ -202,7 +202,7 @@ class my_Dialogs_Actions(tk.Frame):
             f = urllib.request.urlopen(url)
             f.close()
         except urllib.request.HTTPError:
-            flag = False
+            flag=True
         except ValueError:
             flag = False
         
