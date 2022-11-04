@@ -25,6 +25,10 @@ class Database:
             "category_id"	INTEGER NOT NULL,
             PRIMARY KEY("id" AUTOINCREMENT)
         );
+        CREATE TABLE IF NOT EXISTS "setting" (
+            "key"  TEXT NOT NULL UNIQUE,
+            "value" TEXT
+        );
         COMMIT;
     '''
 
@@ -33,6 +37,7 @@ class Database:
         DROP TABLE IF EXISTS "bookmark";
         DROP TABLE IF EXISTS "category";
         DROP TABLE IF EXISTS "folder";
+        DROP TABLE IF EXISTS "setting";
         COMMIT;
     '''
 
@@ -156,4 +161,13 @@ class Database:
         self.cur.execute("DELETE FROM bookmark WHERE id = ?", (bookmark_id,))
         self.con.commit()
 
-    
+    def get_setting(self, key):
+        res = self.cur.execute("SELECT value FROM setting WHERE key = ?", (key,))
+        row = res.fetchone()
+        if row is None:
+            return None
+        return row['value']
+
+    def update_setting(self, key, value):
+        self.cur.execute("INSERT INTO setting (key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
+        self.con.commit()

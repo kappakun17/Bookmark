@@ -16,6 +16,7 @@ from PIL import Image
 from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
 from frontend.src.widget.dialogs.HasNoUrl import my_Dialogs_HasNoUrl
+from frontend.src.widget.dialogs.IntroductionScreen import my_Dialogs_IntroductionScreen
 
 import logging
 logger = logging.getLogger(__name__)
@@ -45,20 +46,23 @@ class my_Dialogs_Actions(tk.Frame):
             'add':self.create_add_screen,
             'edit':self.create_edit_screen,
             'rename':self.create_rename_screen,
-            'delete':self.create_delete_screen
+            'delete':self.create_delete_screen,
+            'introduction':self.create_introduction_screen,
         }
         
         self.actionTitle = {
             'add':"新規登録",
             'edit':"修正",
             'rename':"名前変更",
-            'delete':"削除"
+            'delete':"削除",
+            'introduction':'ITL Bookmarkへ',
         }
         
         self.keyName = {
             'category':"カテゴリー",
             'folder':"フォルダー",
-            'bookmark':"ブックマーク"
+            'bookmark':"ブックマーク",
+            'introduction':"説明",
         }
 
         self.keyColor = {
@@ -73,7 +77,11 @@ class my_Dialogs_Actions(tk.Frame):
             'bookmark':{
                 'background-color':'#6251FA',
                 'font-color':'#FFFDF8',
-            }
+            },
+            'introduction':{
+                'background-color':'#6251FA',
+                'font-color':'#FFFDF8',
+            },
         }
         
         self.keyDbTriger = {
@@ -128,7 +136,17 @@ class my_Dialogs_Actions(tk.Frame):
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
         self.screen = my_Dialogs_DeleteScreen(self.dialog)
-    
+
+    def create_introduction_screen(self):
+        self.dialog = tk.Toplevel(self, bg='#fffdf8')
+        self.dialog.title("説明")
+        self.dialog.geometry(getGeometory(self.master.master, 1000, 1200))
+        self.dialog.grab_set()
+        self.dialog.focus_set()
+        self.dialog.transient(self.master)
+        self.create_header_bar(self.dialog)
+
+        self.screen = my_Dialogs_IntroductionScreen(self.dialog, db=self.db)
     
     def create_header_bar(self, master):
         header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
