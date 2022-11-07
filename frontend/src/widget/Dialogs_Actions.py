@@ -15,6 +15,9 @@ from PIL import Image
 
 from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
+from frontend.src.widget.dialogs.RenameScreen import my_Dialogs_RenameScreen
+from frontend.src.widget.dialogs.EditScreen import my_Dialogs_EditScreen
+
 from frontend.src.widget.dialogs.HasNoUrl import my_Dialogs_HasNoUrl
 from frontend.src.widget.dialogs.IntroductionScreen import my_Dialogs_IntroductionScreen
 
@@ -86,14 +89,17 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.keyDbTriger = {
             'category':{
-                'add':self.DB_insert_category_title,
+                'add':self.DB_insert_category_name,
+                'rename':self.DB_update_category_name,
 
             },
             'folder':{
-                'add':self.DB_insert_folder_title
+                'add':self.DB_insert_folder_name,
+                'rename':self.DB_update_folder_name,
             },
             'bookmark':{
                 'add':self.DB_insert_bookmark,
+                'edit':self.DB_update_bookmark,
             }
         }
         
@@ -119,19 +125,29 @@ class my_Dialogs_Actions(tk.Frame):
         self.dialog = self.create_dialog()
         self.screen = my_Dialogs_AddScreen(self.dialog, self.key)
         
-        eventHander = self.screen.get_params
+        eventHandler = self.screen.get_params
                 
-        self.screen.submit_btn.configure(command = partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHander))
+        self.screen.submit_btn.configure(command = partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
         self.screen.cancel_btn.configure(command = lambda:self.close_action_screen())
        
     
     def create_rename_screen(self):
         self.dialog = self.create_dialog()
-        self.screen = my_Dialogs_RenameScreen(self.dialog)
+        self.screen = my_Dialogs_RenameScreen(self.dialog, key = self.key, prev_name=self.json['name'])
+        
+        eventHandler = self.screen.get_params
+        
+        self.screen.modify_btn.configure(command= partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
+        self.screen.cancel_btn.configure(command = lambda:self.close_action_screen())
         
     def create_edit_screen(self):
         self.dialog = self.create_dialog()
-        self.screen = my_Dialogs_EditScreen(self.dialog)
+        self.screen = my_Dialogs_EditScreen(self.dialog, key=self.key, prev_json = self.json)
+        
+        eventHandler = self.screen.get_params
+        
+        self.screen.modify_btn.configure(command=partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
+        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
         
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
@@ -161,7 +177,7 @@ class my_Dialogs_Actions(tk.Frame):
 
     # === **kw -> データベース登録に必要なparameter
     
-    def DB_insert_category_title(self,eventHandler=None):
+    def DB_insert_category_name(self,eventHandler=None):
         
         # the eventHandler which is for getting the name data
         db_params = eventHandler()
@@ -175,7 +191,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_categoryAndFolders()
         
         
-    def DB_insert_folder_title(self, eventHandler=None):
+    def DB_insert_folder_name(self, eventHandler=None):
 
         db_params = eventHandler()
         JSON_category_id = self.json['id']
@@ -204,12 +220,47 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
         
+    def DB_update_category_name(self, eventHandler=None):
+        db_params = eventHandler()
+        JSON_category_id = self.json['id']
+        if db_params is None: return
+        
+        self.db.update_categoryName(category_id=JSON_category_id, category_name=db_params['name'])
+        logger.debug('カテゴリーを[{}]に修正しました。'.format(db_params['name']))
+        
+        self.app.re_render_categoryAndFolders()
+        
+    def DB_update_folder_name(self, eventHandler=None):
+        db_params = eventHandler()
+        JSON_folder_id = self.json['id']
+        
+        if db_params is None: return
+        
+        self.db.update_folderName(folder_id=JSON_folder_id, folder_name=db_params['name'])
+        logger.debug('フォルダーを[{}]に修正しました。'.format(db_params['name']))
+        
+        self.app.re_render_categoryAndFolders()
+
+    def DB_update_bookmark(self, eventHandler):
+        db_params = eventHandler()
+        JSON_bookmark_id = self.json['id']
+        JSON_folder_id = self.json['folder_id'][0]
+        self.icon = self.getUrlImage(db_params['url'])
+        print(type(self.icon))
+        if db_params is None: return
+        
+        if self.json['url'] != db_params['url']:
+            if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
+        
+        self.db.update_bookmark(bookmark_id=JSON_bookmark_id, bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=self.icon)
+        
+        self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
+        self.dialog.destroy()
+        
     def has_no_url(self, db_params):
         if self.screen is None: return
         self.screen.destroy()
         self.screen = my_Dialogs_HasNoUrl(self.dialog, url=db_params['url'])
-        
-        # self.screen.return_btn.configure(command=partial())
         
         self.dialog = self.create_dialog
         
