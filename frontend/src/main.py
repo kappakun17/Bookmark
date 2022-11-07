@@ -345,8 +345,7 @@ def main():
     
     root.title()
     root.geometry(getGeometory(root, window_width, window_height))
-
-    # root.state('zoomed')
+    root.state('zoomed')
     # アプリの起動まで3秒かかる。
     s_time = time.perf_counter()
     app = Application(master=root);

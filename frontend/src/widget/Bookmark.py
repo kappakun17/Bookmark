@@ -1,7 +1,7 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
 import io
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, UnidentifiedImageError
 import pyperclip
 from frontend.src.utilities.text.text import textIndention,textCountChecker
 import tkinter as tk
@@ -47,8 +47,12 @@ class my_Bookmark(tk.Canvas):
             
         # icon blobデータがあれば、バイナリ変換し、pngへエンコードする。
         else:
-            icon = self.convertBynaryToImage(self.convertStrToBynary(self.json['icon']))
-            self.BookmarkFaviconImage = ImageTk.PhotoImage(self.resizeImage(icon))
+            try:
+                icon = self.convertBynaryToImage(self.convertStrToBynary(self.json['icon']))
+                self.BookmarkFaviconImage = ImageTk.PhotoImage(self.resizeImage(icon))
+            except UnidentifiedImageError:
+                self.BookmarkFaviconImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_no_icon.png")
+
 
         # bookmark card
         tk.Canvas.__init__(self, master, cnf, **kw);
