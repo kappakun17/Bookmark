@@ -133,6 +133,9 @@ class Application(tk.Frame):
         self.master.configure(bg = "#fffdf8")
         self.pack()
         logger.debug('Created the window.')
+
+        # introduction dialog
+        self.show_introduction()
         
     def start_db(self):
         db = Database()
@@ -322,6 +325,15 @@ class Application(tk.Frame):
         gif_player.play()
         
         return main_frame
+
+    def show_introduction(self):
+        if self.db.get_setting('hide_introduction'):
+            return
+
+        json = {
+            'name':'「ITL Bookmark」の説明',
+        }
+        return my_Dialogs_Actions(master = self, key='introduction', action='introduction', DB=self.db, APP=self, JSON=json)
 
 
 import time    
