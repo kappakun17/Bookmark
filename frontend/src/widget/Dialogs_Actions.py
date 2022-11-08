@@ -52,6 +52,7 @@ class my_Dialogs_Actions(tk.Frame):
             'rename':self.create_rename_screen,
             'delete':self.create_delete_screen,
             'introduction':self.create_introduction_screen,
+            'initialize database':self.initialize_database,
         }
         
         self.actionTitle = {
@@ -67,6 +68,7 @@ class my_Dialogs_Actions(tk.Frame):
             'folder':"フォルダー",
             'bookmark':"ブックマーク",
             'introduction':"説明",
+            'settings':"設定",
         }
 
         self.keyColor = {
@@ -83,6 +85,10 @@ class my_Dialogs_Actions(tk.Frame):
                 'font-color':'#FFFDF8',
             },
             'introduction':{
+                'background-color':'#6251FA',
+                'font-color':'#FFFDF8',
+            },
+            'settings':{
                 'background-color':'#6251FA',
                 'font-color':'#FFFDF8',
             },
@@ -163,7 +169,7 @@ class my_Dialogs_Actions(tk.Frame):
     def create_introduction_screen(self):
         self.dialog = tk.Toplevel(self, bg='#fffdf8')
         self.dialog.title("説明")
-        self.dialog.geometry(getGeometory(self.master.master, 1000, 1200))
+        self.dialog.geometry(getGeometory(self.master.master, 1000, 1150))
         self.dialog.grab_set()
         self.dialog.focus_set()
         self.dialog.transient(self.master)
@@ -181,6 +187,9 @@ class my_Dialogs_Actions(tk.Frame):
         
     def get_title_name(self, key, action):
         return "{}の{}".format(self.keyName[key], self.actionTitle[action])
+
+    def initialize_database(self):
+        self.db.rebuildDB()
 
     # === **kw -> データベース登録に必要なparameter
     
