@@ -47,6 +47,7 @@ class my_Dialogs_IntroductionScreen(tk.Frame):
         dismiss_btn.grid(
             column=0,
             row=2,
+            sticky='s',
         )
 
         close_btn = tk.Button(self, text='閉じる', cursor='hand2', bg='#D9D9D9',
@@ -54,6 +55,7 @@ class my_Dialogs_IntroductionScreen(tk.Frame):
         close_btn.grid(
             column=1,
             row=2,
+            sticky='s',
         )
 
         self.pack(padx=0, fill='x')

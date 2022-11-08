@@ -6,6 +6,7 @@ from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.BookmarkMenu import my_BookmarkMenu
 from frontend.src.widget.dialogs.CategoryMenu import my_CategoryMenu
 from frontend.src.widget.dialogs.FolderMenu import my_FolderMenu
+from frontend.src.widget.dialogs.SettingsMenu import my_SettingsMenu
 
 from frontend.src.widget.Dialogs_Actions import my_Dialogs_Actions
 
@@ -56,7 +57,15 @@ class my_Dialogs_MenuBars(tk.Frame):
         self.bookmarkMenu.bookmark_edit_btn.bind("<Button-1>", partial(self.open_screen, key='bookmark', action='edit'))
         self.bookmarkMenu.bookmark_delete_btn.bind("<Button-1>", partial(self.open_screen, key='bookmark', action='delete'))
         self.wait_window(bookmark_dialog)
-    
+
+    def create_settings_menu(self):
+        self.name = self.json['name']
+        settings_dialog = self.create_dialog("Settings Menu")
+        self.settingsMenu = my_SettingsMenu(settings_dialog, title=self.name)
+        self.settingsMenu.show_instructions_btn.bind("<Button-1>", partial(self.open_screen, key='settings', action='introduction'))
+        self.settingsMenu.initialize_database_btn.bind("<Button-1>", partial(self.open_screen, key='settings', action='initialize database'))
+        self.wait_window(settings_dialog)
+        
     # key = bookmark, action= add || edit || rename
     def open_screen(self,event, key=None, action=None):
         if key==None or action==None : return

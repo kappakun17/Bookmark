@@ -245,7 +245,8 @@ class Application(tk.Frame):
         logger.debug('Successed to create the bookmarks.')
     
     def create_Webview(self):
-        self.webviewFrame = my_WebviewFrame(self.frame3)
+        self.webviewFrame = my_WebviewFrame(
+            self.frame3, DB=self.db, APP=self)
         self.webview = my_NoWebview(self.webviewFrame)
         self.webview.goToEdgeBtn.bind('<Button-1>', self.re_render_Webview)
         
