@@ -3,7 +3,7 @@ from backend.database import Database
 def test_data(db):
     db.insert_category("Training");
 
-    db.insert_folder("Programing", 1)   #1
+    db.insert_folder("Programming", 1)   #1
     db.insert_folder("Excel", 1)        #2
     db.insert_folder("Word", 1)         #3
 

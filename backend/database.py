@@ -12,7 +12,9 @@ class Database:
             "memo"	TEXT,
             "folder_id"	INTEGER NOT NULL,
             "icon" BLOB,
-            PRIMARY KEY("id" AUTOINCREMENT)
+            PRIMARY KEY("id" AUTOINCREMENT),
+            FOREIGN KEY(folder_id) REFERENCES folder(id)
+            ON UPDATE CASCADE ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS "category" (
             "id"	INTEGER NOT NULL UNIQUE,
@@ -23,7 +25,9 @@ class Database:
             "id"	INTEGER NOT NULL UNIQUE,
             "name"	TEXT NOT NULL UNIQUE,
             "category_id"	INTEGER NOT NULL,
-            PRIMARY KEY("id" AUTOINCREMENT)
+            PRIMARY KEY("id" AUTOINCREMENT),
+            FOREIGN KEY(category_id) REFERENCES category(id)
+            ON UPDATE CASCADE ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS "setting" (
             "key"  TEXT NOT NULL UNIQUE,
@@ -44,6 +48,7 @@ class Database:
     def __init__(self) -> None:
         self.db = "sqlite3.db"
         self.con = sqlite3.connect(self.db, check_same_thread=False)
+        self.con.execute("PRAGMA foreign_keys = ON")
         self.con.row_factory = sqlite3.Row
         self.cur = self.con.cursor()
 

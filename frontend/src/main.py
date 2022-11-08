@@ -117,6 +117,7 @@ class Application(tk.Frame):
         # image instance
         self.bookmarkTitleBarImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_bar.png")
         self.bookmarkTitleBtnImage = tkinter.PhotoImage(file="frontend/src//img/bookmark/bookmark_title_btn.png")
+        self.CategoryAddBtnImage = tk.PhotoImage(file='frontend/src/img/category/category_add_btn.png')
         self.BookmarkAddBtnImage = tk.PhotoImage(file="frontend/src/img/bookmark/bookmark_add_btn.png")
         # style 設定
         self.style = ttk.Style()
@@ -189,6 +190,22 @@ class Application(tk.Frame):
         print('test')
         self.create_folder()
         
+        self.addCategoryBtn = tk.Button(
+            self.sf_1.inner_frame,
+            image=self.CategoryAddBtnImage,
+            command="",
+            cursor='hand2',
+            bg='#fffdf8',
+            borderwidth = 0,
+            highlightthickness = 0,
+            relief = "flat",
+            activebackground='#fffdf8'
+        )
+    
+        self.addCategoryBtn.pack(side='top', pady=(20, 0))
+        self.addCategoryBtn.configure(command=lambda:self.call_my_dialogs_Action_add_category())
+        logger.debug('Successed to create the bookmarks.')
+        
 
     def create_category(self):
         category = self.json_categoryAndFolders
@@ -206,6 +223,7 @@ class Application(tk.Frame):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
             for j ,folders in enumerate(category[i]['folders']):
+                print(folders)
                 folder_obj = my_Folder(cf.category.folders_frame,DB=self.db, APP=self, JSON=category[i]['folders'][j])
                 folder_obj.bind('<Button-1>', partial(self.re_render_bookmarks,folder_key=folder_obj.id_var.get()))
                 cf.category.folders_frame.append_folders(folder_obj)
@@ -241,7 +259,7 @@ class Application(tk.Frame):
         )
     
         self.addBookmarksBtn.pack(side='top', pady=(20, 0))
-        self.addBookmarksBtn.configure(command=lambda:self.set_my_Dialogs_Action_add_bookmark)
+        self.addBookmarksBtn.configure(command=lambda:self.call_my_Dialogs_Action_add_bookmark())
         logger.debug('Successed to create the bookmarks.')
     
     def create_Webview(self):
@@ -295,14 +313,20 @@ class Application(tk.Frame):
         URL = url if url else self.current_url_var.get()
         self.webview = my_Webview(self.webviewFrame, url=URL)
         logger.debug('Successed to update the webview screen.')
-
-    def set_my_Dialogs_Action_add_bookmark(self):
+    
+    def call_my_dialogs_Action_add_category(self):
+        json = {
+            'name':'新規登録',
+        }
+        my_Dialogs_Actions(master=self, key='category', action='add', DB=self.db, APP=self, JSON=json)
+        
+    
+    def call_my_Dialogs_Action_add_bookmark(self):
         json = {
             'name':'新規追加',
-            'folder_id':self.folder_key_var.get()
+            'id':self.folder_key_var.get()
         }
-        
-        return my_Dialogs_Actions(master = self, key='bookmark', action='add', DB=self.db, APP=self, JSON=json).create_add_screen()
+        my_Dialogs_Actions(master=self, key='bookmark', action='add', DB=self.db, APP=self, JSON=json)
     
     def set_JsonCategoryAndFolders(self):
         self.json_categoryAndFolders = json.loads(self.db.select_all_categorys_and_folders())
@@ -355,19 +379,13 @@ def main():
     # ここで、アプリが動き続ける / アプリを終了するまで
 
     app.mainloop()
-   
-        
 
     # メモリを解放してくれる（thread）
     gc.collect()
 
-
 def go():
-    
     try:
-        
         main()
-        
     except Exception as err:
         print(err)   
         

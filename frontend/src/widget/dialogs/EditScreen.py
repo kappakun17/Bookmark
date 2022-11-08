@@ -69,10 +69,10 @@ class my_Dialogs_EditScreen(tk.Frame):
     def get_btns(self):
         btn_frame = tk.Frame(self, bg='#fffdf8')
         btn_frame.pack(side='bottom', pady=20, expand=False)
-        self.modify_btn = tk.Button(btn_frame, image=self.modify_btn_image,command="re_render_Webview", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
+        self.modify_btn = tk.Button(btn_frame, image=self.modify_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
         self.modify_btn.pack(side='right', padx=(0,10))
     
-        self.cancel_btn = tk.Button(btn_frame, image=self.cancel_btn_image,command="re_render_Webview", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
+        self.cancel_btn = tk.Button(btn_frame, image=self.cancel_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
         self.cancel_btn.pack(side='left',padx=(10,0))
         
     def get_params(self):

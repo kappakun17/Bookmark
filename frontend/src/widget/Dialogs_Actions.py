@@ -17,6 +17,7 @@ from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
 from frontend.src.widget.dialogs.RenameScreen import my_Dialogs_RenameScreen
 from frontend.src.widget.dialogs.EditScreen import my_Dialogs_EditScreen
+from frontend.src.widget.dialogs.DeleteScreen import my_Dialogs_DeleteScreen
 
 from frontend.src.widget.dialogs.HasNoUrl import my_Dialogs_HasNoUrl
 from frontend.src.widget.dialogs.IntroductionScreen import my_Dialogs_IntroductionScreen
@@ -91,15 +92,18 @@ class my_Dialogs_Actions(tk.Frame):
             'category':{
                 'add':self.DB_insert_category_name,
                 'rename':self.DB_update_category_name,
+                'delete':self.DB_delete_category,
 
             },
             'folder':{
                 'add':self.DB_insert_folder_name,
                 'rename':self.DB_update_folder_name,
+                'delete':self.DB_delete_folder,
             },
             'bookmark':{
                 'add':self.DB_insert_bookmark,
                 'edit':self.DB_update_bookmark,
+                'delete':self.DB_delete_bookmark,
             }
         }
         
@@ -151,7 +155,10 @@ class my_Dialogs_Actions(tk.Frame):
         
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
-        self.screen = my_Dialogs_DeleteScreen(self.dialog)
+        self.screen = my_Dialogs_DeleteScreen(self.dialog, JSON=self.json)
+        
+        self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
+        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
 
     def create_introduction_screen(self):
         self.dialog = tk.Toplevel(self, bg='#fffdf8')
@@ -189,6 +196,7 @@ class my_Dialogs_Actions(tk.Frame):
         
         # reload category and folders
         self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
         
         
     def DB_insert_folder_name(self, eventHandler=None):
@@ -202,6 +210,7 @@ class my_Dialogs_Actions(tk.Frame):
         logger.debug('フォルダー[{}]をデータベースに追加しました。'.format(db_params['name']))
         
         self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
 
     def DB_insert_bookmark(self, eventHandler=None):
         db_params = eventHandler()
@@ -229,6 +238,7 @@ class my_Dialogs_Actions(tk.Frame):
         logger.debug('カテゴリーを[{}]に修正しました。'.format(db_params['name']))
         
         self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
         
     def DB_update_folder_name(self, eventHandler=None):
         db_params = eventHandler()
@@ -240,6 +250,7 @@ class my_Dialogs_Actions(tk.Frame):
         logger.debug('フォルダーを[{}]に修正しました。'.format(db_params['name']))
         
         self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
 
     def DB_update_bookmark(self, eventHandler):
         db_params = eventHandler()
@@ -255,6 +266,21 @@ class my_Dialogs_Actions(tk.Frame):
         self.db.update_bookmark(bookmark_id=JSON_bookmark_id, bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=self.icon)
         
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
+        self.dialog.destroy()
+    
+    def DB_delete_category(self):
+        self.db.delete_category(category_id=self.json['id'])
+        self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
+        
+    def DB_delete_folder(self):
+        self.db.delete_folder(folder_id=self.json['id'])
+        self.app.re_render_categoryAndFolders()
+        self.dialog.destroy()
+        
+    def DB_delete_bookmark(self):
+        self.db.delete_bookmark(bookmark_id=self.json['id'])
+        self.app.re_render_bookmarks(bookmark_id=self.json['id'], is_force_reload=True)
         self.dialog.destroy()
         
     def has_no_url(self, db_params):
