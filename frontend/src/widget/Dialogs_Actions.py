@@ -18,6 +18,7 @@ from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
 from frontend.src.widget.dialogs.RenameScreen import my_Dialogs_RenameScreen
 from frontend.src.widget.dialogs.EditScreen import my_Dialogs_EditScreen
 from frontend.src.widget.dialogs.DeleteScreen import my_Dialogs_DeleteScreen
+from frontend.src.widget.dialogs.ConfirmInitializeDBScreen import my_Dialogs_ConfirmInitializeDBScreen
 
 from frontend.src.widget.dialogs.HasNoUrl import my_Dialogs_HasNoUrl
 from frontend.src.widget.dialogs.IntroductionScreen import my_Dialogs_IntroductionScreen
@@ -52,7 +53,7 @@ class my_Dialogs_Actions(tk.Frame):
             'rename':self.create_rename_screen,
             'delete':self.create_delete_screen,
             'introduction':self.create_introduction_screen,
-            'initialize database':self.initialize_database,
+            'initialize_database':self.create_confirm_initialize_database_screen,
         }
         
         self.actionTitle = {
@@ -61,6 +62,7 @@ class my_Dialogs_Actions(tk.Frame):
             'rename':"名前変更",
             'delete':"削除",
             'introduction':'ITL Bookmarkへ',
+            'initialize_database':'データベースの初期化'
         }
         
         self.keyName = {
@@ -110,6 +112,9 @@ class my_Dialogs_Actions(tk.Frame):
                 'add':self.DB_insert_bookmark,
                 'edit':self.DB_update_bookmark,
                 'delete':self.DB_delete_bookmark,
+            },
+            'settings':{
+                'initialize_database':self.initialize_database,
             }
         }
         
@@ -161,6 +166,7 @@ class my_Dialogs_Actions(tk.Frame):
         
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
+        print('画面を出します。')
         self.screen = my_Dialogs_DeleteScreen(self.dialog, JSON=self.json)
         
         self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
@@ -176,6 +182,14 @@ class my_Dialogs_Actions(tk.Frame):
         self.create_header_bar(self.dialog)
 
         self.screen = my_Dialogs_IntroductionScreen(self.dialog, db=self.db)
+        
+    def create_confirm_initialize_database_screen(self):
+        self.dialog = self.create_dialog()
+        self.screen = my_Dialogs_ConfirmInitializeDBScreen(self.dialog)
+        
+        self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
+        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
+
     
     def create_header_bar(self, master):
         header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
@@ -190,6 +204,9 @@ class my_Dialogs_Actions(tk.Frame):
 
     def initialize_database(self):
         self.db.rebuildDB()
+        self.app.re_render_categoryAndFolders()
+        self.app.re_render_bookmarks(folder_key=1, is_force_reload=True)
+        self.dialog.destroy()
 
     # === **kw -> データベース登録に必要なparameter
     

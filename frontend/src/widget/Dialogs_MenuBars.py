@@ -63,7 +63,7 @@ class my_Dialogs_MenuBars(tk.Frame):
         settings_dialog = self.create_dialog("Settings Menu")
         self.settingsMenu = my_SettingsMenu(settings_dialog, title=self.name)
         self.settingsMenu.show_instructions_btn.bind("<Button-1>", partial(self.open_screen, key='settings', action='introduction'))
-        self.settingsMenu.initialize_database_btn.bind("<Button-1>", partial(self.open_screen, key='settings', action='initialize database'))
+        self.settingsMenu.initialize_database_btn.bind("<Button-1>", partial(self.open_screen, key='settings', action='initialize_database'))
         self.wait_window(settings_dialog)
         
     # key = bookmark, action= add || edit || rename
