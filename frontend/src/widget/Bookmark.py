@@ -155,8 +155,8 @@ class my_Bookmark(tk.Canvas):
     
     def convertBynaryToImage(self, icon_b):
         if icon_b is None: return icon_b
-        print(icon_b)
-        print(type(icon_b))
+        # print(icon_b)
+        # print(type(icon_b))
         return Image.open(io.BytesIO(icon_b))
     
     def resizeImage(self, icon):
