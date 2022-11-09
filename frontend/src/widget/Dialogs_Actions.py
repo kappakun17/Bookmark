@@ -6,6 +6,7 @@ import re
 import tkinter as tk
 from venv import create
 
+import sqlite3
 import urllib.request
 
 import favicon
@@ -19,6 +20,7 @@ from frontend.src.widget.dialogs.RenameScreen import my_Dialogs_RenameScreen
 from frontend.src.widget.dialogs.EditScreen import my_Dialogs_EditScreen
 from frontend.src.widget.dialogs.DeleteScreen import my_Dialogs_DeleteScreen
 from frontend.src.widget.dialogs.ConfirmInitializeDBScreen import my_Dialogs_ConfirmInitializeDBScreen
+from frontend.src.widget.dialogs.ErrorScreen import my_Dialogs_ErrorScreen
 
 from frontend.src.widget.dialogs.HasNoUrl import my_Dialogs_HasNoUrl
 from frontend.src.widget.dialogs.IntroductionScreen import my_Dialogs_IntroductionScreen
@@ -139,6 +141,8 @@ class my_Dialogs_Actions(tk.Frame):
         return dialog
     
     def create_add_screen(self):
+
+
         self.dialog = self.create_dialog()
         self.screen = my_Dialogs_AddScreen(self.dialog, self.key)
         
@@ -165,7 +169,7 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.screen.modify_btn.configure(command=partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
-        
+    
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
         self.screen = my_Dialogs_DeleteScreen(self.dialog, JSON=self.json)
@@ -191,6 +195,11 @@ class my_Dialogs_Actions(tk.Frame):
         self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
 
+    def create_error_screen(self, error):
+        self.dialog.destroy()
+        self.dialog = self.create_dialog()
+        self.screen = my_Dialogs_ErrorScreen(self.dialog, error=error)
+        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
     
     def create_header_bar(self, master):
         header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
@@ -218,7 +227,11 @@ class my_Dialogs_Actions(tk.Frame):
         
         if db_params is None: return
         
-        self.db.insert_category(category_name = db_params['name'])
+        try:
+            self.db.insert_category(category_name = db_params['name'])
+        except sqlite3.IntegrityError:
+            return self.create_error_screen('unique')
+        
         logger.debug('カテゴリー[{}]をデータベースに追加しました。'.format(db_params['name']))
         
         # reload category and folders
@@ -325,6 +338,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.screen = my_Dialogs_HasNoUrl(self.dialog, db_params)
         
         self.screen.submit_btn.configure(command=partial(self.keyDbTriger['has_no_url'][self.action], db_params=db_params))
+        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
     
     def DB_insert_has_no_url(self, db_params):
         JSON_folder_id = self.json['id']
