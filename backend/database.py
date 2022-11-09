@@ -90,6 +90,7 @@ class Database:
         
         selected_data = []
         for category in categorys:
+
             folders = self.select_relate_category_folder(category.id)
             
             for folder in folders:
@@ -101,6 +102,16 @@ class Database:
         
         return json.dumps(selected_data, indent = 4, ensure_ascii=False)
 
+
+    def selfct_categories(self):
+        res = self.cur.execute("SELECT id, name FROM category")
+        categories = [row['name'] for row in res]
+
+        selected_data = {
+            'category': categories,
+        }
+        
+        return json.dumps(selected_data, indent = 4, ensure_ascii=False)
 
     def select_category_id(self, category_id):
         res = self.cur.execute("SELECT id, name FROM category WHERE id = ?", (category_id,))

@@ -5,7 +5,7 @@ class my_Dialogs_HasNoUrl(tk.Frame):
         
         self.has_no_url_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/has_no_url.png')
         self.submit_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/submit_btn.png')
-        self.return_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/return_btn.png')
+        self.cancel_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/cancel_btn.png')
         
         super().__init__(master)
         self.configure( bg='#fffdf8')
@@ -30,8 +30,8 @@ class my_Dialogs_HasNoUrl(tk.Frame):
         self.submit_btn = tk.Button(btn_frame, image=self.submit_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
         self.submit_btn.pack(side='right', padx=(0,10))
 
-        self.return_btn = tk.Button(btn_frame, image=self.return_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
-        self.return_btn.pack(pady=20)
+        self.cancel_btn = tk.Button(btn_frame, image=self.cancel_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
+        self.cancel_btn.pack(pady=20)
 
 
     def get_params(self):
