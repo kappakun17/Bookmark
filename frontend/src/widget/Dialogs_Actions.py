@@ -111,6 +111,10 @@ class my_Dialogs_Actions(tk.Frame):
                 'edit':self.DB_update_bookmark,
                 'delete':self.DB_delete_bookmark,
             },
+            'has_no_url':{
+                'add':self.DB_insert_has_no_url,
+                'edit':self.DB_update_has_no_url,
+            },
             'settings':{
                 'initialize_database':self.initialize_database,
             }
@@ -282,14 +286,18 @@ class my_Dialogs_Actions(tk.Frame):
         db_params = eventHandler()
         JSON_bookmark_id = self.json['id']
         JSON_folder_id = self.json['folder_id'][0]
-        self.icon = self.getUrlImage(db_params['url'])
         
         if db_params is None: return
         
         if self.json['url'] != db_params['url']:
             if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
         
-        self.db.update_bookmark(bookmark_id=JSON_bookmark_id, bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=self.icon)
+        try:
+            icon = self.getUrlImage(db_params['url'])
+        except requests.exceptions.HTTPError:
+            return self.has_no_url(db_params)
+        
+        self.db.update_bookmark(bookmark_id=JSON_bookmark_id, bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
         
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
@@ -316,7 +324,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.screen.destroy()
         self.screen = my_Dialogs_HasNoUrl(self.dialog, db_params)
         
-        self.screen.submit_btn.configure(command=partial(self.DB_insert_has_no_url, db_params=db_params))
+        self.screen.submit_btn.configure(command=partial(self.keyDbTriger['has_no_url'][self.action], db_params=db_params))
     
     def DB_insert_has_no_url(self, db_params):
         JSON_folder_id = self.json['id']
@@ -324,6 +332,16 @@ class my_Dialogs_Actions(tk.Frame):
 
         self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
         
+        self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
+        self.dialog.destroy()
+
+    def DB_update_has_no_url(self, db_params):
+        JSON_bookmark_id = self.json['id']
+        JSON_folder_id = self.json['folder_id'][0]
+        icon = None
+
+        self.db.update_bookmark(bookmark_id=JSON_bookmark_id, bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
+
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
 
