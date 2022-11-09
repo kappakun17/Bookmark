@@ -31,7 +31,7 @@ class my_Folder(tk.Canvas):
         self.folder_btn = tk.Button(
             self,
             image=self.FolderBtnImage,
-            command="re_render_Webview",
+            command="",
             cursor='hand2',
             # bg='#E893B1',
             borderwidth = 0,
@@ -44,10 +44,7 @@ class my_Folder(tk.Canvas):
         
         self.pack(anchor='e',pady=5)
         self.config(cursor='hand2')
-        
-    
-    def test(self, event):
-        print('click the folder')
+
         
     def open_menu_bar(self, event):
         print(self.json_folder)

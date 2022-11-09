@@ -92,7 +92,6 @@ class Application(tk.Frame):
         logger.debug('Compleated to initial running the app.')
             
     def startup(self):
-        print(self)
         # db
         self.db = self.start_db()
         
@@ -182,25 +181,13 @@ class Application(tk.Frame):
 
         for category in self.json_categoryAndFolders:
             cf = my_CategoryAndFoldersFrame(self.sf_1.inner_frame, category=category)
-            self.categoryAndFolders.append(cf)
-        print('test')    
+            self.categoryAndFolders.append(cf) 
+
         self.create_category()
-        print('test')
         self.create_folders_frame()
-        print('test')
         self.create_folder()
         
-        self.addCategoryBtn = tk.Button(
-            self.sf_1.inner_frame,
-            image=self.CategoryAddBtnImage,
-            command="",
-            cursor='hand2',
-            bg='#fffdf8',
-            borderwidth = 0,
-            highlightthickness = 0,
-            relief = "flat",
-            activebackground='#fffdf8'
-        )
+        self.addCategoryBtn = tk.Button(self.sf_1.inner_frame, image=self.CategoryAddBtnImage, command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8')
     
         self.addCategoryBtn.pack(side='top', pady=(20, 0))
         self.addCategoryBtn.configure(command=lambda:self.call_my_dialogs_Action_add_category())
@@ -210,10 +197,9 @@ class Application(tk.Frame):
     def create_category(self):
         category = self.json_categoryAndFolders
         for i, cf in enumerate(self.categoryAndFolders):
-            category_obj = my_Category(cf, DB=self.db, APP=self, JSON=category[i],)
+            category_obj = my_Category(cf, DB=self.db, APP=self, JSON=category[i])
             category_obj.bind('<Button-1>', partial(self.toggle_categoryBtn, category = category_obj))
             cf.set_category(category_obj)
-            print('testf')
             
     def create_folders_frame(self):
         for cf in self.categoryAndFolders:
@@ -221,9 +207,9 @@ class Application(tk.Frame):
         
     def create_folder(self):
         category = self.json_categoryAndFolders
+        print(category)
         for i, cf in enumerate(self.categoryAndFolders):
             for j ,folders in enumerate(category[i]['folders']):
-                print(folders)
                 folder_obj = my_Folder(cf.category.folders_frame,DB=self.db, APP=self, JSON=category[i]['folders'][j])
                 folder_obj.bind('<Button-1>', partial(self.re_render_bookmarks,folder_key=folder_obj.id_var.get()))
                 cf.category.folders_frame.append_folders(folder_obj)
@@ -293,6 +279,7 @@ class Application(tk.Frame):
             cf.destroy()
         time.sleep(4)
         self.render_categoryAndFolders()
+        logger.debug('Successed to update the category and folder screen.')
         
     
     def re_render_bookmarks(self,event=None, folder_key=None, is_force_reload=False):
@@ -304,10 +291,10 @@ class Application(tk.Frame):
             bookmark.destroy()
             
         self.addBookmarksBtn.destroy()
-        print(folder_key)
         self.folder_key_var.set(folder_key);
-        print(str(self.folder_key_var.get()))
+
         self.render_bookmarks()
+        logger.debug('Successed to update the bookmark screen.')
     
     def re_render_Webview(self,event=None, url=None):
         self.webview.destroy()
@@ -331,8 +318,7 @@ class Application(tk.Frame):
     
     def set_JsonCategoryAndFolders(self):
         self.json_categoryAndFolders = json.loads(self.db.select_all_categorys_and_folders())
-        print(self.json_categoryAndFolders)
-
+    
     def set_JsonBookmarks(self):
         folder_key = self.folder_key_var.get()
         self.json_bookmarks = json.loads(self.db.select_relate_folder_bookmark(folder_key));

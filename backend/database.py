@@ -89,8 +89,12 @@ class Database:
         categorys = [Category(row['id'], row['name']) for row in rows_category]
         
         selected_data = []
-        for i, category in enumerate(categorys, start=1):
-            folders = self.select_relate_category_folder(i)
+        for category in categorys:
+            folders = self.select_relate_category_folder(category.id)
+            
+            for folder in folders:
+                print(folder.id, folder.name)
+     
             
             data = Category_Folders(category, folders)
             selected_data.append(data.dict())
