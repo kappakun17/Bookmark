@@ -356,7 +356,7 @@ class Application(tk.Frame):
             return
 
         json = {
-            'name':'「ITL Bookmark」の説明',
+            'name':'"ITL Bookmark" の説明',
         }
         return my_Dialogs_Actions(master = self, key='introduction', action='introduction', DB=self.db, APP=self, JSON=json)
 
