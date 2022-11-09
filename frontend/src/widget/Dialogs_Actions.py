@@ -353,9 +353,10 @@ class my_Dialogs_Actions(tk.Frame):
         self.dialog.destroy()
         
     def DB_delete_bookmark(self):
+        JSON_folder_id = self.json['folder_id'][0]
+
         self.db.delete_bookmark(bookmark_id=self.json['id'])
-        print(self.json['id'])
-        self.app.re_render_bookmarks(folder_key=self.json['id'], is_force_reload=True)
+        self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
         
     def is_url(self, url):
