@@ -356,6 +356,7 @@ class my_Dialogs_Actions(tk.Frame):
         JSON_folder_id = self.json['folder_id'][0]
 
         self.db.delete_bookmark(bookmark_id=self.json['id'])
+        
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
         
