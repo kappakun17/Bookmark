@@ -141,11 +141,15 @@ class my_Dialogs_Actions(tk.Frame):
         return dialog
     
     def create_add_screen(self):
-
-
         self.dialog = self.create_dialog()
-        self.screen = my_Dialogs_AddScreen(self.dialog, self.key)
-        
+
+        eventHandler = None
+
+        def dialog_default_handler(e):
+            self.keyDbTriger[self.key][self.action](eventHandler=eventHandler)
+
+        self.screen = my_Dialogs_AddScreen(
+            master=self.dialog, key=self.key, on_default=dialog_default_handler)
         eventHandler = self.screen.get_params
                 
         self.screen.submit_btn.configure(command = partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))

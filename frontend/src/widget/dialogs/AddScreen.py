@@ -2,8 +2,8 @@ from cgitb import text
 import tkinter as tk
 
 class my_Dialogs_AddScreen(tk.Frame):
-    def __init__(self, master=None, key=None):
-        
+    def __init__(self, master=None, key=None, on_default=None):
+        self.on_default = on_default
         self.title_box_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/title_box.png')
         self.text_box_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/text_box.png')
         self.submit_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/submit_btn.png')
@@ -56,6 +56,7 @@ class my_Dialogs_AddScreen(tk.Frame):
         name_text_box_image.pack(fill='x', anchor='w', ipady=5)
 
         self.name_text_box = tk.Entry(name_text_box_image, textvariable=textVar, bg='white',font=("HGPｺﾞｼｯｸE", "13", "bold"), borderwidth=0)
+        self.name_text_box.bind('<Return>', self.on_default)
         self.name_text_box.place(x=23, y=10,width=500, height=45)
         
     def create_text_box(self, master, text):
