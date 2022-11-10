@@ -20,7 +20,7 @@
 ## アプリのダウンロード
 ITL関係者のみ、以下のアプリをダウンロードすることが可能です。
 
-ダウンロードは[こちら](https://microsoft.sharepoint.com/:u:/t/JPITLAllMember/ETNWFP6O_OxItFWpmvOzyc0Bf2Al45ZuBdo_IdcCCfqjjg)から。
+ダウンロードは[こちら](https://microsoft.sharepoint.com/:u:/t/JPITLAllMember/EUZvR1thKNZIvYisjpYjAHgBSFAiJNDw99PXbCUJG6OkDw)から。
 
 
 ## 開発者向け🚀
