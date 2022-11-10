@@ -14,6 +14,9 @@ class my_Dialogs_ErrorScreen(tk.Frame):
 
         self.trigerError = {
             'unique':self.unique,
+            'network':self.network,
+            'no_name':self.no_name,
+            'no_url':self.no_url,
         }
 
         self.error_image = tk.Label(self, image=self.has_no_url_image, bg='#fffdf8')
@@ -35,3 +38,21 @@ class my_Dialogs_ErrorScreen(tk.Frame):
         self.error_label = tk.Label(self, text=self.error_message, font=("HGPｺﾞｼｯｸE", "13", "bold"), bg='#fffdf8')
         self.error_label.pack(pady=10)
         
+    def network(self):
+        self.error_message = 'ネットワークがオフラインのようです。\nネットワーク接続を確認してください。'
+        
+        self.error_label = tk.Label(self, text=self.error_message, font=("HGPｺﾞｼｯｸE", "13", "bold"), bg='#fffdf8')
+        self.error_label.pack(pady=10)
+        
+    def no_name(self):
+        self.error_message = '名前の入力が未記入のようです。\n名前を付けてください。'
+        
+        self.error_label = tk.Label(self, text=self.error_message, font=("HGPｺﾞｼｯｸE", "13", "bold"), bg='#fffdf8')
+        self.error_label.pack(pady=10)
+        
+        
+    def no_url(self):
+        self.error_message = 'URLの入力が未記入のようです。\nURLを登録してください。'
+        
+        self.error_label = tk.Label(self, text=self.error_message, font=("HGPｺﾞｼｯｸE", "13", "bold"), bg='#fffdf8')
+        self.error_label.pack(pady=10)
