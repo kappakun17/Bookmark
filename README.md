@@ -20,14 +20,14 @@
 ## アプリのダウンロード
 ITL関係者のみ、以下のアプリをダウンロードすることが可能です。
 
-ダウンロードは[こちら]('https://microsoft.sharepoint.com/:u:/t/JPITLAllMember/ETNWFP6O_OxItFWpmvOzyc0Bf2Al45ZuBdo_IdcCCfqjjg')から。
+ダウンロードは[こちら](https://microsoft.sharepoint.com/:u:/t/JPITLAllMember/ETNWFP6O_OxItFWpmvOzyc0Bf2Al45ZuBdo_IdcCCfqjjg)から。
 
 
 ## 開発者向け🚀
 
 このコードを利用し、カスタマイズや、アップデートに挑戦したい方は以下のステップを踏んでください。
 
-1.pythonを持っていない方は、python3 の[インストール]('https://www.python.org/downloads/')
+1.pythonを持っていない方は、python3 の[インストール](https://www.python.org/downloads/)
 
 
 2.ITL Bookmarkレポジトリをクローン
