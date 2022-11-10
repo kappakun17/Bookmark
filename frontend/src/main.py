@@ -1,13 +1,9 @@
 # library
-from concurrent.futures import ProcessPoolExecutor
-import os
-from sqlite3 import Cursor
 # tk
 import tkinter
 import tkinter as tk
 from tkinter import ttk
-from tkinter import BooleanVar, Frame, PhotoImage,Tk,Button,Entry,Label, Canvas
-from winreg import LoadKey
+from tkinter import Tk
 from tkscrolledframe import ScrolledFrame
 
 from concurrent.futures.thread import ThreadPoolExecutor
@@ -16,15 +12,12 @@ import json
 import gc
 import ctypes
 from functools import partial
-from PIL import Image, ImageTk
 
 import logging
 
 # module
 # backend
 from backend.database import Database
-
-from test_front import test_data
 
 # frontend
 from frontend.src.widget.frame_left.FrameLeft import my_FrameLeft
@@ -139,10 +132,7 @@ class Application(tk.Frame):
         
     def start_db(self):
         db = Database()
-        db.rebuildDB()
         db.consistOfDB()
-        test_data(db)
-        
         logger.debug('Successed to consist of db.')
         return db
     

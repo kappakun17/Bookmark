@@ -33,6 +33,9 @@ class Database:
             "key"  TEXT NOT NULL UNIQUE,
             "value" TEXT
         );
+        CREATE TABLE IF NOT EXISTS "initial" (
+            "is_initial"  TEXT NOT NULL
+        );
         COMMIT;
     '''
 
@@ -42,6 +45,7 @@ class Database:
         DROP TABLE IF EXISTS "category";
         DROP TABLE IF EXISTS "folder";
         DROP TABLE IF EXISTS "setting";
+        DROP TABLE IF EXISTS "initial";
         COMMIT;
     '''
 
@@ -58,6 +62,16 @@ class Database:
 
     def consistOfDB(self):
         self.cur.executescript(self.DATABASE_SCHEMA)
+        
+        if self.get_is_initial() is True:
+            print('true')
+        else:
+            print('false')
+            self.insert_is_initial()
+            self.insert_category("Welcome");
+            self.insert_folder("To", 1)   #1
+            self.insert_bookmark("ITL Bookmark", "https://github.com/shibainu1986/Bookmark", "ようこそ、ITL Bookmarkへ。このアプリを使うことで、URLの管理が円滑になります。こちらのブックマークはカテゴリーごと削除して、お使いください。", 1, None)
+            
 
     def rebuildDB(self):
         # 一度削除
@@ -170,6 +184,7 @@ class Database:
         return Bookmark(row['id'], row['name'], row['url'], row['memo'], row['folder_id'], row['icon'])
 
     def insert_bookmark(self, bookmark_name, bookmark_url, bookmark_memo, folder_id, icon):
+    
         self.cur.execute("INSERT INTO bookmark(name, url, memo, folder_id, icon) VALUES (?,?,?,?,?)", (bookmark_name, bookmark_url, bookmark_memo, folder_id, icon))
         self.con.commit()
 
@@ -189,5 +204,14 @@ class Database:
         return row['value']
 
     def update_setting(self, key, value):
-        self.cur.execute("INSERT INTO setting (key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
+        self.cur.execute("INSERT INTO setting(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
         self.con.commit()
+        
+    def insert_is_initial(self):
+        self.cur.execute("INSERT INTO initial(is_initial) VALUES (?)", ('1'))
+
+    def get_is_initial(self):
+        res = self.cur.execute("SELECT is_initial FROM initial WHERE is_initial = ?", ("1"))
+        row = res.fetchone()
+        if row is None: return
+        if str(row['is_initial']) == '1': return True

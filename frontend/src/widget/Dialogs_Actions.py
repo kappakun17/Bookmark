@@ -10,6 +10,7 @@ import urllib.request
 import favicon
 import requests
 
+from initialize_dataset import initialize_dataset
 
 from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
@@ -285,7 +286,11 @@ class my_Dialogs_Actions(tk.Frame):
         except requests.exceptions.HTTPError:
             return self.has_no_url(db_params)
         
-        self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
+        try:
+            self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
+        except sqlite3.IntegrityError:
+            return self.create_error_screen('no_category_and_folder')
+    
         logger.debug('ブックマーク[{}]をデータベースに追加しました。'.format(db_params['name']))
         
         
@@ -296,8 +301,10 @@ class my_Dialogs_Actions(tk.Frame):
         icon = None
         JSON_folder_id = self.json['folder_id'][0]
 
-        self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
-        
+        try:
+            self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
+        except sqlite3.IntegrityError:
+            return self.create_error_screen('no_category_and_folder')
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
         
