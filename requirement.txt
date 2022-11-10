@@ -4,3 +4,4 @@ tkscrolledframe
 favicon
 pyperclip
 tkwebview2
+cx-Freeze

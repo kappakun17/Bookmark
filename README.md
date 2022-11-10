@@ -20,7 +20,7 @@
 ## アプリのダウンロード
 ITL関係者のみ、以下のアプリをダウンロードすることが可能です。
 
-ダウンロードは[こちら]('#')から。
+ダウンロードは[こちら]('https://microsoft.sharepoint.com/:u:/t/JPITLAllMember/ETNWFP6O_OxItFWpmvOzyc0Bf2Al45ZuBdo_IdcCCfqjjg')から。
 
 
 ## 開発者向け🚀
@@ -36,8 +36,29 @@ ITL関係者のみ、以下のアプリをダウンロードすることが可�
 git clone https://github.com/shibainu1986/Bookmark.git
 ```
 
-アプリ起動のコマンドは以下の通りです。
+3.仮想環境構築
+```
+py -m venv .venv
+```
+
+4.仮想環境に入る
+```
+.venv\Scripts\activate
+```
+
+5.必要なライブラリーをインストール
+```
+py -m pip install -r requirement.txt
+```
+
+6.アプリ起動
 
 ```
 py main.py
+```
+
+※アプリのパッケージ化は以下の通りです。
+
+```
+py setup.py bdist_msi
 ```
