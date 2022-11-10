@@ -1,10 +1,8 @@
-import base64
 from collections import deque
 from functools import partial
-from io import BytesIO
+
 import re
 import tkinter as tk
-from venv import create
 
 import sqlite3
 import urllib.request
@@ -12,7 +10,6 @@ import urllib.request
 import favicon
 import requests
 
-from PIL import Image
 
 from frontend.src.utilities.geometory.geometory import getGeometory
 from frontend.src.widget.dialogs.AddScreen import my_Dialogs_AddScreen
@@ -121,7 +118,8 @@ class my_Dialogs_Actions(tk.Frame):
                 'initialize_database':self.initialize_database,
             }
         }
-        
+    
+    
         if self.action not in self.actionTrigger: return
         else:
             event = self.actionTrigger[self.action]
@@ -239,6 +237,8 @@ class my_Dialogs_Actions(tk.Frame):
         
         if db_params is None: return
         
+        if self.check_input_data(db_params) != True: return
+        
         try:
             self.db.insert_category(category_name = db_params['name'])
         except sqlite3.IntegrityError:
@@ -257,6 +257,8 @@ class my_Dialogs_Actions(tk.Frame):
         JSON_category_id = self.json['id']
         
         if db_params is None or JSON_category_id is None: return
+        
+        if self.check_input_data(db_params) != True: return
 
         self.db.insert_folder(folder_name=db_params['name'], category_id = JSON_category_id)
         logger.debug('フォルダー[{}]をデータベースに追加しました。'.format(db_params['name']))
@@ -270,16 +272,18 @@ class my_Dialogs_Actions(tk.Frame):
         
                 
         if db_params is None or JSON_folder_id is None: return
+        
+        if self.check_input_data(db_params) != True: return
 
+        if self.checkInternetHTTPLib(url=db_params['url']) == False: return self.create_error_screen('network')
+        
         if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
         
+    
         try:
             icon = self.getUrlImage(db_params['url'])
         except requests.exceptions.HTTPError:
             return self.has_no_url(db_params)
-        
-        print('testtest---' + str(JSON_folder_id))
-        
         
         self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
         logger.debug('ブックマーク[{}]をデータベースに追加しました。'.format(db_params['name']))
@@ -289,7 +293,6 @@ class my_Dialogs_Actions(tk.Frame):
         self.dialog.destroy()
 
     def DB_insert_has_no_url(self, db_params):
-        
         icon = None
         JSON_folder_id = self.json['folder_id'][0]
 
@@ -303,6 +306,8 @@ class my_Dialogs_Actions(tk.Frame):
         JSON_category_id = self.json['id']
         if db_params is None: return
         
+        if self.check_input_data(db_params) != True: return
+        
         self.db.update_categoryName(category_id=JSON_category_id, category_name=db_params['name'])
         logger.debug('カテゴリーを[{}]に修正しました。'.format(db_params['name']))
         
@@ -314,6 +319,8 @@ class my_Dialogs_Actions(tk.Frame):
         JSON_folder_id = self.json['id']
         
         if db_params is None: return
+        
+        if self.check_input_data(db_params) != True: return
         
         self.db.update_folderName(folder_id=JSON_folder_id, folder_name=db_params['name'])
         logger.debug('フォルダーを[{}]に修正しました。'.format(db_params['name']))
@@ -327,6 +334,10 @@ class my_Dialogs_Actions(tk.Frame):
         JSON_folder_id = self.json['folder_id'][0]
         
         if db_params is None: return
+        
+        if self.check_input_data(db_params) != True: return
+        
+        if self.checkInternetHTTPLib(url=db_params['url']) == False: return self.create_error_screen('network')
         
         if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
         
@@ -414,3 +425,26 @@ class my_Dialogs_Actions(tk.Frame):
     
     def close_action_screen(self):
         self.dialog.destroy()
+        
+    def checkInternetHTTPLib(self, url=None):
+        flag = True
+        timeout = 5
+
+        try:
+            requests.get(url, timeout=timeout)
+            return flag
+        except requests.exceptions.MissingSchema:
+            return flag
+        except (requests.ConnectionError, requests.Timeout) as exception:
+            flag = False
+            return flag
+        
+    
+    def check_input_data(self, db_params):
+        
+        if db_params['name'] == '': return self.create_error_screen('no_name');
+            
+        if self.key == 'bookmark':
+            if db_params['url'] == '': return self.create_error_screen('no_url')
+            
+        return True
