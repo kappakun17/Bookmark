@@ -277,7 +277,7 @@ class Application(tk.Frame):
         categoryAndoFolders = self.sf_1.inner_frame.winfo_children()
         for cf in categoryAndoFolders:
             cf.destroy()
-        #time.sleep(4)
+            
         self.render_categoryAndFolders()
         logger.debug('Successed to update the category and folder screen.')
         
@@ -312,7 +312,7 @@ class Application(tk.Frame):
     def call_my_Dialogs_Action_add_bookmark(self):
         json = {
             'name':'新規追加',
-            'id':self.folder_key_var.get()
+            'folder_id':[self.folder_key_var.get()],
         }
         my_Dialogs_Actions(master=self, key='bookmark', action='add', DB=self.db, APP=self, JSON=json)
     

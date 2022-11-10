@@ -175,7 +175,6 @@ class my_Bookmark(tk.Canvas):
             print("can't copy because no having url")
     
     def display_description(self,event,desc, x, y):
-        #time.sleep(0.6)
         desc.place(x=x, y=y)
 
     def no_display_description(self, event, desc):

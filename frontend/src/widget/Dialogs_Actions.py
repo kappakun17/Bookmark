@@ -266,8 +266,9 @@ class my_Dialogs_Actions(tk.Frame):
 
     def DB_insert_bookmark(self, eventHandler=None):
         db_params = eventHandler()
-        JSON_folder_id = self.json['id']
+        JSON_folder_id = self.json['folder_id'][0]
         
+                
         if db_params is None or JSON_folder_id is None: return
 
         if self.is_url(db_params['url']) == False: return self.has_no_url(db_params)
@@ -276,7 +277,10 @@ class my_Dialogs_Actions(tk.Frame):
             icon = self.getUrlImage(db_params['url'])
         except requests.exceptions.HTTPError:
             return self.has_no_url(db_params)
-
+        
+        print('testtest---' + str(JSON_folder_id))
+        
+        
         self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
         logger.debug('ブックマーク[{}]をデータベースに追加しました。'.format(db_params['name']))
         
@@ -285,8 +289,9 @@ class my_Dialogs_Actions(tk.Frame):
         self.dialog.destroy()
 
     def DB_insert_has_no_url(self, db_params):
-        JSON_folder_id = self.json['id']
+        
         icon = None
+        JSON_folder_id = self.json['folder_id'][0]
 
         self.db.insert_bookmark(bookmark_name=db_params['name'], bookmark_url=db_params['url'], bookmark_memo=db_params['memo'], folder_id=JSON_folder_id, icon=icon)
         
