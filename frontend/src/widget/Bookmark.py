@@ -1,15 +1,12 @@
 import base64
-from concurrent.futures import ThreadPoolExecutor
 import io
 from PIL import ImageTk, Image, UnidentifiedImageError
 import pyperclip
 from frontend.src.utilities.text.text import textIndention,textCountChecker
 import tkinter as tk
-import favicon
-import requests
+
 import webbrowser
-import re
-import time
+
 
 from frontend.src.widget.Dialogs_MenuBars import my_Dialogs_MenuBars
 
@@ -74,7 +71,7 @@ class my_Bookmark(tk.Canvas):
         # url
         self.create_text(140,90, text=textCountChecker(self.url_var.get(), 35), fill='#B9B9B9', anchor="nw",font=("HGPｺﾞｼｯｸE", "10", "bold"))
         # memo
-        self.create_text(140,150, text=textIndention(self.memo_var.get(), 35), fill='#6C6C6C', anchor="nw",font=("HGPｺﾞｼｯｸE", "10", "bold"))
+        self.create_text(140,150, text=textIndention(self.memo_var.get(), 30), fill='#6C6C6C', anchor="nw",font=("HGPｺﾞｼｯｸE", "10", "bold"))
         
         # browser button
         self.browser_btn = tk.Button(
