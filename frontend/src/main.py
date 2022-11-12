@@ -23,9 +23,12 @@ from backend.database import Database
 from frontend.src.widget.frame_left.FrameLeft import my_FrameLeft
 from frontend.src.widget.frame_center.FrameCenter import my_FrameCenter
 from frontend.src.widget.frame_right.FrameRight import my_FrameRight
+from frontend.src.widget.frame_slider.FrameSlider import my_FrameSlider
 
 from frontend.src.widget.frame_left.ScrolledFrameForLeft import ScrolledFrameForLeft
 from frontend.src.widget.frame_center.ScrolledFrameForCenter import ScrolledFrameForCenter
+from frontend.src.widget.frame_slider.Slider import my_Slider
+
 from frontend.src.widget.Logo import my_Logo
 from frontend.src.widget.BookmarkTitleBar import my_BookmarkTitleBar
 
@@ -124,7 +127,7 @@ class Application(tk.Frame):
         self.master.geometry("2700x1200")
         self.master.title("ITL Bookmark")
         self.master.configure(bg = "#fffdf8")
-        self.pack()
+        self.pack(fill='y')
         logger.debug('Created the window.')
 
         # introduction dialog
@@ -143,8 +146,9 @@ class Application(tk.Frame):
         # each frame widget
         self.frame1 = my_FrameLeft(self.master);
         self.frame2 = my_FrameCenter(self.master);
-        self.frame3 = my_FrameRight(self.master)
-        logger.debug('Created the main 3 frames.')
+        self.frameSlider = my_FrameSlider(self.master);
+        self.frame3 = my_FrameRight(self.master);
+        logger.debug('Created the main 4 frames.')
         
         # logo / bookmark title bar
         self.logo =my_Logo(self.frame1)
@@ -155,6 +159,9 @@ class Application(tk.Frame):
         self.sf_1 = ScrolledFrameForLeft(self.frame1)
         self.sf_2 = ScrolledFrameForCenter(self.frame2)
         logger.debug('Created the 2 scrolled frame.')
+        
+        self.slider = my_Slider(self.frameSlider)
+        self.slider.sliderbar.bind("<B1-Motion>", self.move_slider)
         
         # 並列処理
         with ThreadPoolExecutor(max_workers=20) as executor:
@@ -336,7 +343,13 @@ class Application(tk.Frame):
         }
         return my_Dialogs_Actions(master = self, key='introduction', action='introduction', DB=self.db, APP=self, JSON=json)
 
-
+    def move_slider(self, event):
+        width = self.sf_2.winfo_width() + event.x
+        # print(width)
+        print(width)
+        if width < 1676 and width > 10 :
+            self.sf_2.configure(width=self.sf_2.winfo_width() + event.x)
+    
 import time    
 def main():
     root = Tk();

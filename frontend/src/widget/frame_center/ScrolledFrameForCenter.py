@@ -8,7 +8,7 @@ class ScrolledFrameForCenter(ScrolledFrame):
         
         self._canvas.configure(bg='#fffdf8')
         self.config(
-            width=820, 
+            width=810, 
             cursor='hand2', 
             height=self.master.winfo_screenheight(), 
             bg='#fffdf8',
@@ -19,3 +19,6 @@ class ScrolledFrameForCenter(ScrolledFrame):
         self.bind_arrow_keys(self.master)
         self.bind_scroll_wheel(self.master)
         self.inner_frame = self.display_widget(Frame,fit_width=False,bg='#fffdf8')
+
+        
+    
