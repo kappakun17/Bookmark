@@ -54,7 +54,7 @@ options = {
 # base = None 
 base = 'Win32GUI' if sys.platform == 'win32' else None
 
-icon = "icons/icon_256x256.ico"
+icon = "icons/icon.ico"
 
 # exe にしたい python ファイルを指定
 exe = Executable(script="main.py",
