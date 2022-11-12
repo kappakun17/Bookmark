@@ -199,10 +199,18 @@ class my_Dialogs_Actions(tk.Frame):
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
 
     def create_error_screen(self, error):
-        self.dialog.destroy()
-        self.dialog = self.create_dialog()
-        self.screen = my_Dialogs_ErrorScreen(self.dialog, error=error)
-        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
+        dialog = tk.Toplevel(self.dialog, bg='#fffdf8')
+        dialog.title("Bookmark Action")
+        dialog.geometry(getGeometory(self.master.master, 1000, 800))
+        dialog.grab_set()
+        dialog.focus_set()
+        dialog.transient(self.master)
+        
+        self.create_header_bar(dialog)
+        self.create_title_bar(dialog)
+        
+        self.screen = my_Dialogs_ErrorScreen(dialog, error=error)
+        self.screen.return_btn.configure(command=partial(self.close_action_screen, widget=dialog))
     
     def create_header_bar(self, master):
         header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
@@ -430,8 +438,10 @@ class my_Dialogs_Actions(tk.Frame):
     
         return img_data
     
-    def close_action_screen(self):
-        self.dialog.destroy()
+    def close_action_screen(self, widget=None):
+        if widget is None: return self.dialog.destroy()
+        widget.destroy()
+        
         
     def checkInternetHTTPLib(self, url=None):
         flag = True

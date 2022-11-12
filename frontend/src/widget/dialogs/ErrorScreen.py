@@ -5,7 +5,7 @@ class my_Dialogs_ErrorScreen(tk.Frame):
     def __init__(self, master=None, error=None):
 
         self.has_no_url_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/has_no_url.png')
-        self.cancel_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/cancel_btn.png')
+        self.return_btn_image = tk.PhotoImage(file='frontend/src/img/dialog/actions/return_btn.png')
         
         super().__init__(master);
         self.config(bg='#fffdf8')
@@ -28,8 +28,8 @@ class my_Dialogs_ErrorScreen(tk.Frame):
         btn_frame = tk.Frame(self, bg='#fffdf8')
         btn_frame.pack(side='bottom', pady=20, expand=False)
 
-        self.cancel_btn = tk.Button(btn_frame, image=self.cancel_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
-        self.cancel_btn.pack(pady=20)
+        self.return_btn = tk.Button(btn_frame, image=self.return_btn_image,command="", cursor='hand2', bg='#fffdf8', borderwidth = 0, highlightthickness = 0, relief = "flat",)
+        self.return_btn.pack(pady=20)
 
 
     def unique(self):
