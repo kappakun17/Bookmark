@@ -2,7 +2,7 @@ from cx_Freeze import setup, Executable
 import sys
 
 name = "ITL Bookmark"
-version = "1.0.0"
+version = "1.1.0"
 description = "The app that it's efficient work for the url user manage"
 author = "Ruri Shibata and Ren Murayama"
 url = "https://github.com/shibainu1986/Bookmark"
