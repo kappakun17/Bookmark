@@ -56,7 +56,7 @@ class my_Dialogs_AddScreen(tk.Frame):
         name_text_box_image.pack(fill='x', anchor='w', ipady=5)
 
         self.name_text_box = tk.Entry(name_text_box_image, textvariable=textVar, bg='white',font=("HGPｺﾞｼｯｸE", "13", "bold"), borderwidth=0)
-        self.name_text_box.bind('<Return>', self.on_default)
+        # self.name_text_box.bind('<Return>', self.on_default)
         self.name_text_box.place(x=23, y=10,width=500, height=45)
         
     def create_text_box(self, master, text):

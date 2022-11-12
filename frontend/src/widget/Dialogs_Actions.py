@@ -144,15 +144,15 @@ class my_Dialogs_Actions(tk.Frame):
 
         eventHandler = None
 
-        def dialog_default_handler(e):
-            self.keyDbTriger[self.key][self.action](eventHandler=eventHandler)
-
-        self.screen = my_Dialogs_AddScreen(
-            master=self.dialog, key=self.key, on_default=dialog_default_handler)
+        self.screen = my_Dialogs_AddScreen(master=self.dialog, key=self.key,)
         eventHandler = self.screen.get_params
                 
         self.screen.submit_btn.configure(command = partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
         self.screen.cancel_btn.configure(command = lambda:self.close_action_screen())
+        
+        self.dialog.bind("<Return>", partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
+        self.dialog.bind("<Escape>", self.close_action_screen)
+        
        
     
     def create_rename_screen(self):
@@ -164,6 +164,9 @@ class my_Dialogs_Actions(tk.Frame):
         self.screen.modify_btn.configure(command= partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
         self.screen.cancel_btn.configure(command = lambda:self.close_action_screen())
         
+        self.dialog.bind("<Return>", partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
+        self.dialog.bind("<Escape>", self.close_action_screen)
+    
     def create_edit_screen(self):
         self.dialog = self.create_dialog()
         self.screen = my_Dialogs_EditScreen(self.dialog, key=self.key, prev_json = self.json)
@@ -172,6 +175,9 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.screen.modify_btn.configure(command=partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
+        
+        self.dialog.bind("<Return>", partial(self.keyDbTriger[self.key][self.action], eventHandler=eventHandler))
+        self.dialog.bind("<Escape>", self.close_action_screen)
     
     def create_delete_screen(self):
         self.dialog = self.create_dialog()
@@ -179,6 +185,9 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
+        
+        self.dialog.bind("<Return>", partial(self.keyDbTriger[self.key][self.action]))
+        self.dialog.bind("<Escape>", self.close_action_screen)
 
     def create_introduction_screen(self):
         self.dialog = tk.Toplevel(self, bg='#fffdf8')
@@ -190,6 +199,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.create_header_bar(self.dialog)
 
         self.screen = my_Dialogs_IntroductionScreen(self.dialog, db=self.db)
+        self.dialog.bind("<Escape>", self.close_action_screen)
         
     def create_confirm_initialize_database_screen(self):
         self.dialog = self.create_dialog()
@@ -197,7 +207,10 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.screen.delete_btn.configure(command=partial(self.keyDbTriger[self.key][self.action]))
         self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
-
+        
+        self.dialog.bind("<Return>", partial(self.keyDbTriger[self.key][self.action]))
+        self.dialog.bind("<Escape>", self.close_action_screen)
+        
     def create_error_screen(self, error):
         dialog = tk.Toplevel(self.dialog, bg='#fffdf8')
         dialog.title("Bookmark Action")
@@ -211,6 +224,7 @@ class my_Dialogs_Actions(tk.Frame):
         
         self.screen = my_Dialogs_ErrorScreen(dialog, error=error)
         self.screen.return_btn.configure(command=partial(self.close_action_screen, widget=dialog))
+        dialog.bind("<Escape>", partial(self.close_action_screen, widget=dialog))
     
     def create_header_bar(self, master):
         header_label = tk.Label(master, text=self.json['name'], bg=self.keyColor[self.key]['background-color'], borderwidth = 0, highlightthickness = 0, relief = "flat", activebackground='#fffdf8', height=2,  font=("HGPｺﾞｼｯｸE", "10", "bold"), foreground=self.keyColor[self.key]['font-color'])
@@ -222,16 +236,29 @@ class my_Dialogs_Actions(tk.Frame):
 
     def has_no_url(self, db_params):
         if self.screen is None: return
-        self.screen.destroy()
-        self.screen = my_Dialogs_HasNoUrl(self.dialog, db_params)
+        
+        dialog = tk.Toplevel(self.dialog, bg='#fffdf8')
+        dialog.title("Bookmark Action")
+        dialog.geometry(getGeometory(self.master.master, 1000, 800))
+        dialog.grab_set()
+        dialog.focus_set()
+        dialog.transient(self.master)
+        
+        self.create_header_bar(dialog)
+        self.create_title_bar(dialog)
+        
+        self.screen = my_Dialogs_HasNoUrl(dialog, db_params)
         
         self.screen.submit_btn.configure(command=partial(self.keyDbTriger['has_no_url'][self.action], db_params=db_params))
-        self.screen.cancel_btn.configure(command=lambda:self.close_action_screen())
+        self.screen.cancel_btn.configure(command=partial(self.close_action_screen, widget=dialog))
+        
+        dialog.bind("<Return>", partial(self.keyDbTriger['has_no_url'][self.action], db_params=db_params))
+        dialog.bind("<Escape>", partial(self.close_action_screen, widget=dialog))
         
     def get_title_name(self, key, action):
         return "{}の{}".format(self.keyName[key], self.actionTitle[action])
 
-    def initialize_database(self):
+    def initialize_database(self, event=None):
         self.db.rebuildDB()
         self.app.re_render_categoryAndFolders()
         self.app.re_render_bookmarks(folder_key=1, is_force_reload=True)
@@ -239,7 +266,7 @@ class my_Dialogs_Actions(tk.Frame):
 
     # === **kw -> データベース登録に必要なparameter
     
-    def DB_insert_category_name(self,eventHandler=None):
+    def DB_insert_category_name(self,event=None, eventHandler=None):
         
         # the eventHandler which is for getting the name data
         db_params = eventHandler()
@@ -260,7 +287,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.dialog.destroy()
         
         
-    def DB_insert_folder_name(self, eventHandler=None):
+    def DB_insert_folder_name(self,event=None, eventHandler=None):
 
         db_params = eventHandler()
         JSON_category_id = self.json['id']
@@ -275,7 +302,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_categoryAndFolders()
         self.dialog.destroy()
 
-    def DB_insert_bookmark(self, eventHandler=None):
+    def DB_insert_bookmark(self,event=None, eventHandler=None):
         db_params = eventHandler()
         JSON_folder_id = self.json['folder_id'][0]
         
@@ -305,7 +332,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
 
-    def DB_insert_has_no_url(self, db_params):
+    def DB_insert_has_no_url(self,event=None, db_params=None):
         icon = None
         JSON_folder_id = self.json['folder_id'][0]
 
@@ -316,7 +343,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
         
-    def DB_update_category_name(self, eventHandler=None):
+    def DB_update_category_name(self,event=None, eventHandler=None):
         db_params = eventHandler()
         JSON_category_id = self.json['id']
         if db_params is None: return
@@ -329,7 +356,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_categoryAndFolders()
         self.dialog.destroy()
         
-    def DB_update_folder_name(self, eventHandler=None):
+    def DB_update_folder_name(self,event=None, eventHandler=None):
         db_params = eventHandler()
         JSON_folder_id = self.json['id']
         
@@ -343,7 +370,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_categoryAndFolders()
         self.dialog.destroy()
 
-    def DB_update_bookmark(self, eventHandler):
+    def DB_update_bookmark(self,event=None, eventHandler=None):
         db_params = eventHandler()
         JSON_bookmark_id = self.json['id']
         JSON_folder_id = self.json['folder_id'][0]
@@ -366,7 +393,7 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
 
-    def DB_update_has_no_url(self, db_params):
+    def DB_update_has_no_url(self,event=None, db_params=None):
         JSON_bookmark_id = self.json['id']
         JSON_folder_id = self.json['folder_id'][0]
         icon = None
@@ -376,18 +403,18 @@ class my_Dialogs_Actions(tk.Frame):
         self.app.re_render_bookmarks(folder_key=JSON_folder_id, is_force_reload=True)
         self.dialog.destroy()
     
-    def DB_delete_category(self):
+    def DB_delete_category(self,event=None):
         self.db.delete_category(category_id=self.json['id'])
         self.app.re_render_categoryAndFolders()
         self.app.re_render_bookmarks(folder_key=self.json['id'], is_force_reload=True)
         self.dialog.destroy()
         
-    def DB_delete_folder(self):
+    def DB_delete_folder(self,event=None):
         self.db.delete_folder(folder_id=self.json['id'])
         self.app.re_render_categoryAndFolders()
         self.dialog.destroy()
         
-    def DB_delete_bookmark(self):
+    def DB_delete_bookmark(self, event=None):
         JSON_folder_id = self.json['folder_id'][0]
 
         self.db.delete_bookmark(bookmark_id=self.json['id'])
@@ -438,7 +465,7 @@ class my_Dialogs_Actions(tk.Frame):
     
         return img_data
     
-    def close_action_screen(self, widget=None):
+    def close_action_screen(self,event=None, widget=None):
         if widget is None: return self.dialog.destroy()
         widget.destroy()
         
